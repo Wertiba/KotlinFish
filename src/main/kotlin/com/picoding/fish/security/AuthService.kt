@@ -1,12 +1,9 @@
-//package com.picoding.first_project.security
+//package com.picoding.fish.security
 //
-//import com.picoding.first_project.database.model.RefreshToken
-//import com.picoding.first_project.database.model.User
-//import com.picoding.first_project.database.repoitory.RefreshTokenRepo
-//import com.picoding.first_project.database.repoitory.UserRepo
+//import com.picoding.fish.database.models.User
+//import com.picoding.fish.database.repositories.UserRepository
 //import com.picoding.fish.security.HashEncoder
 //import com.picoding.fish.security.JWTService
-//import org.bson.types.ObjectId
 //import org.springframework.http.HttpStatus
 //import org.springframework.http.HttpStatusCode
 //import org.springframework.security.authentication.BadCredentialsException
@@ -20,7 +17,7 @@
 //@Service
 //class AuthService(
 //    private val jwtService: JWTService,
-//    private val userRepo: UserRepo,
+//    private val userRepo: UserRepository,
 //    private val refreshTokenRepo: RefreshTokenRepo,
 //    private val hashEncoder: HashEncoder
 //) {
