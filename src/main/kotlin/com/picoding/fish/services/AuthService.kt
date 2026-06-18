@@ -2,6 +2,7 @@ package com.picoding.fish.services
 
 import com.picoding.fish.api.exceptions.userAlreadyExists
 import com.picoding.fish.core.schemas.token.TokenPair
+import com.picoding.fish.core.schemas.user.UserInfoResponse
 import com.picoding.fish.core.schemas.user.UserLoginBody
 import com.picoding.fish.core.schemas.user.UserRegisterBody
 import com.picoding.fish.core.security.HashEncoder
@@ -26,20 +27,22 @@ class AuthService(
     private val refreshTokenRepo: RefreshTokenRepository,
     private val hashEncoder: HashEncoder,
 ) {
-    fun register(data: UserRegisterBody): User {
+    fun register(data: UserRegisterBody): UserInfoResponse {
         val (email, password, fullName, role) = data
-        val user = userRepo.findByEmail(email.trim())
+        var user = userRepo.findByEmail(email.trim())
         if (user != null) {
             throw userAlreadyExists(email)
         }
-        return userRepo.save(
-            User(
-                email = email,
-                password = hashEncoder.encode(password),
-                fullName = fullName,
-                role = role,
-            ),
-        )
+        user =
+            userRepo.save(
+                User(
+                    email = email,
+                    password = hashEncoder.encode(password),
+                    fullName = fullName,
+                    role = role,
+                ),
+            )
+        return UserInfoResponse(user.id!!, user.email, user.fullName, user.role)
     }
 
     fun login(data: UserLoginBody): TokenPair {

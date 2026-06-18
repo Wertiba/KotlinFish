@@ -2,13 +2,16 @@ package com.picoding.fish.api.controllers
 
 import com.picoding.fish.core.schemas.requests.RefreshRequest
 import com.picoding.fish.core.schemas.token.TokenPair
+import com.picoding.fish.core.schemas.user.UserInfoResponse
 import com.picoding.fish.core.schemas.user.UserLoginBody
 import com.picoding.fish.core.schemas.user.UserRegisterBody
 import com.picoding.fish.services.AuthService
 import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -17,11 +20,10 @@ class AuthController(
     private val authService: AuthService,
 ) {
     @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
     fun register(
         @Valid @RequestBody body: UserRegisterBody,
-    ) {
-        authService.register(body)
-    }
+    ): UserInfoResponse = authService.register(body)
 
     @PostMapping("/login")
     fun login(

@@ -2,8 +2,9 @@ package com.picoding.fish.core.schemas.user
 
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.Pattern
+import java.util.UUID
 
-interface UserData {
+interface UserDataBody {
     @get:Email(message = "Invalid email format.")
     val email: String
 
@@ -14,18 +15,32 @@ interface UserData {
     val password: String
 }
 
+interface UserDataResponse {
+    val id: UUID
+    val email: String
+    val fullName: String
+    val role: UserRole
+}
+
 data class UserLoginBody(
     override val email: String,
     override val password: String,
-) : UserData
+) : UserDataBody
 
 data class UserRegisterBody(
     override val email: String,
     override val password: String,
-    @field:Pattern(
+    @get:Pattern(
         regexp = "^[a-zA-Z_]{2,}$", // Рекомендуется добавить ^ в начало регулярки
         message = "FullName must be at least 2 characters long and contain only uppercase, lowercase and _ symbols.",
     )
     val fullName: String,
     val role: UserRole,
-) : UserData
+) : UserDataBody
+
+data class UserInfoResponse(
+    override val id: UUID,
+    override val email: String,
+    override val fullName: String,
+    override val role: UserRole,
+) : UserDataResponse
