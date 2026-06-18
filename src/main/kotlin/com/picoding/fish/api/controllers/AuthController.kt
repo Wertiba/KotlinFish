@@ -1,4 +1,4 @@
-package com.picoding.fish.controllers
+package com.picoding.fish.api.controllers
 
 import com.picoding.fish.core.schemas.requests.RefreshRequest
 import com.picoding.fish.core.schemas.token.TokenPair

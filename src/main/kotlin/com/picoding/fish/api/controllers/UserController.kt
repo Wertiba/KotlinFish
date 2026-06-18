@@ -1,4 +1,4 @@
-package com.picoding.fish.controllers
+package com.picoding.fish.api.controllers
 
 import com.picoding.fish.database.models.User
 import com.picoding.fish.database.repositories.UserRepository

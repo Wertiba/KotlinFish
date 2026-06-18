@@ -1,5 +1,6 @@
 package com.picoding.fish.services
 
+import com.picoding.fish.api.exceptions.userAlreadyExists
 import com.picoding.fish.core.schemas.token.TokenPair
 import com.picoding.fish.core.schemas.user.UserLoginBody
 import com.picoding.fish.core.schemas.user.UserRegisterBody
@@ -8,7 +9,6 @@ import com.picoding.fish.database.models.RefreshToken
 import com.picoding.fish.database.models.User
 import com.picoding.fish.database.repositories.RefreshTokenRepository
 import com.picoding.fish.database.repositories.UserRepository
-import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.stereotype.Service
@@ -30,7 +30,7 @@ class AuthService(
         val (email, password, fullName, role) = data
         val user = userRepo.findByEmail(email.trim())
         if (user != null) {
-            throw ResponseStatusException(HttpStatus.CONFLICT, "User already exists")
+            throw userAlreadyExists(email)
         }
         return userRepo.save(
             User(
@@ -55,7 +55,7 @@ class AuthService(
         val newAccessToken = jwtService.generateAccessToken(user.id.toString())
         val newRefreshToken = jwtService.generateRefreshToken(user.id.toString())
 
-        storeRefreshToken(user.id, newRefreshToken)
+        storeRefreshToken(user.id!!, newRefreshToken)
 
         return TokenPair(
             accessToken = newAccessToken,
@@ -76,7 +76,7 @@ class AuthService(
             }
 
         val hashed = hashToken(refreshToken)
-        refreshTokenRepo.findByidAndHashedToken(user.id, hashed)
+        refreshTokenRepo.findByidAndHashedToken(user.id!!, hashed)
             ?: throw ResponseStatusException(HttpStatusCode.valueOf(401), "Refresh token not recognized.")
 
         refreshTokenRepo.deleteByidAndHashedToken(user.id, hashed)
