@@ -1,4 +1,4 @@
-package com.picoding.fish.security
+package com.picoding.fish.core.security
 
 import jakarta.servlet.DispatcherType
 import org.springframework.context.annotation.Bean
@@ -14,10 +14,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 class SecurityConfig(
     private val jwtAuthFilter: JWTAuthFilter,
 ) {
-
     @Bean
-    fun filterChain(httpSecurity: HttpSecurity) : SecurityFilterChain {
-        return httpSecurity
+    fun filterChain(httpSecurity: HttpSecurity): SecurityFilterChain =
+        httpSecurity
             .csrf { csrf -> csrf.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
@@ -28,21 +27,16 @@ class SecurityConfig(
                         "/v3/api-docs/**",
                         "/v3/api-docs",
                         "/auth/**",
-                    )
-                    .permitAll()
+                    ).permitAll()
                     .dispatcherTypeMatchers(
                         DispatcherType.ERROR,
                         DispatcherType.FORWARD,
-                    )
-                    .permitAll()
+                    ).permitAll()
                     .anyRequest()
                     .authenticated()
-            }
-            .exceptionHandling { configurer ->
+            }.exceptionHandling { configurer ->
                 configurer
                     .authenticationEntryPoint(HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
-            }
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
+            }.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
             .build()
-    }
 }

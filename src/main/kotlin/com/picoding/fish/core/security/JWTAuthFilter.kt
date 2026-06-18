@@ -1,5 +1,6 @@
-package com.picoding.fish.security
+package com.picoding.fish.core.security
 
+import com.picoding.fish.services.JWTService
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -10,13 +11,12 @@ import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
 class JWTAuthFilter(
-    private val jwtService: JWTService
-): OncePerRequestFilter(){
-
+    private val jwtService: JWTService,
+) : OncePerRequestFilter() {
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        filterChain: FilterChain
+        filterChain: FilterChain,
     ) {
         val authHeader = request.getHeader("Authorization")
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
