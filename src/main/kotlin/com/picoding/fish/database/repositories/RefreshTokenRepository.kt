@@ -1,10 +1,10 @@
 package com.picoding.fish.database.repositories
 
 import com.picoding.fish.database.models.RefreshToken
-import org.springframework.data.repository.CrudRepository
+import org.springframework.data.jpa.repository.JpaRepository
 import java.util.UUID
 
-interface RefreshTokenRepository : CrudRepository<RefreshToken, UUID> {
+interface RefreshTokenRepository : JpaRepository<RefreshToken, UUID> {
     fun findByidAndHashedToken(
         id: UUID,
         hashedToken: String,
