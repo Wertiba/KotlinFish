@@ -2,8 +2,8 @@ package com.picoding.fish.api.controllers
 
 import com.picoding.fish.core.schemas.requests.RefreshRequest
 import com.picoding.fish.core.schemas.token.TokenPair
-import com.picoding.fish.core.schemas.user.UserInfoResponse
 import com.picoding.fish.core.schemas.user.UserLoginBody
+import com.picoding.fish.core.schemas.user.UserReadResponse
 import com.picoding.fish.core.schemas.user.UserRegisterBody
 import com.picoding.fish.services.AuthService
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -25,7 +25,7 @@ class AuthController(
     @ResponseStatus(HttpStatus.CREATED)
     fun register(
         @Valid @RequestBody body: UserRegisterBody,
-    ): UserInfoResponse = authService.register(body)
+    ): UserReadResponse = authService.register(body)
 
     @PostMapping("/login")
     fun login(

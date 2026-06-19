@@ -13,3 +13,10 @@ fun userAlreadyExists(email: String) =
                 "value" to email,
             ),
     )
+
+fun userNotFound() =
+    AppException(
+        code = "NOT_FOUND",
+        message = "User not found.",
+        status = HttpStatus.NOT_FOUND,
+    )

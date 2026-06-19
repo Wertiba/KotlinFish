@@ -31,14 +31,14 @@ data class UserRegisterBody(
     override val email: String,
     override val password: String,
     @get:Pattern(
-        regexp = "^[a-zA-Z_]{2,}$", // Рекомендуется добавить ^ в начало регулярки
+        regexp = "^[a-zA-Z_]{2,}$",
         message = "FullName must be at least 2 characters long and contain only uppercase, lowercase and _ symbols.",
     )
     val fullName: String,
     val role: UserRole,
 ) : UserDataBody
 
-data class UserInfoResponse(
+data class UserReadResponse(
     override val id: UUID,
     override val email: String,
     override val fullName: String,

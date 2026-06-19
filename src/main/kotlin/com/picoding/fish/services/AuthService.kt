@@ -1,9 +1,10 @@
 package com.picoding.fish.services
 
 import com.picoding.fish.api.exceptions.userAlreadyExists
+import com.picoding.fish.core.mappers.toReadResponse
 import com.picoding.fish.core.schemas.token.TokenPair
-import com.picoding.fish.core.schemas.user.UserInfoResponse
 import com.picoding.fish.core.schemas.user.UserLoginBody
+import com.picoding.fish.core.schemas.user.UserReadResponse
 import com.picoding.fish.core.schemas.user.UserRegisterBody
 import com.picoding.fish.core.security.HashEncoder
 import com.picoding.fish.database.models.RefreshToken
@@ -23,18 +24,18 @@ import java.util.UUID
 @Service
 class AuthService(
     private val jwtService: JWTService,
-    private val userRepo: UserRepository,
+    private val userRepository: UserRepository,
     private val refreshTokenRepo: RefreshTokenRepository,
     private val hashEncoder: HashEncoder,
 ) {
-    fun register(data: UserRegisterBody): UserInfoResponse {
+    fun register(data: UserRegisterBody): UserReadResponse {
         val (email, password, fullName, role) = data
-        var user = userRepo.findByEmail(email.trim())
+        var user = userRepository.findByEmail(email.trim())
         if (user != null) {
             throw userAlreadyExists(email)
         }
         user =
-            userRepo.save(
+            userRepository.save(
                 User(
                     email = email,
                     password = hashEncoder.encode(password),
@@ -42,13 +43,13 @@ class AuthService(
                     role = role,
                 ),
             )
-        return UserInfoResponse(user.id!!, user.email, user.fullName, user.role)
+        return user.toReadResponse()
     }
 
     fun login(data: UserLoginBody): TokenPair {
         val (email, password) = data
         val user =
-            userRepo.findByEmail(email)
+            userRepository.findByEmail(email)
                 ?: throw BadCredentialsException("User not found.")
 
         if (!hashEncoder.matches(password, user.password)) {
@@ -74,7 +75,7 @@ class AuthService(
 
         val userId = jwtService.getUserIdFromToken(refreshToken)
         val user =
-            userRepo.findById(UUID.fromString(userId)).orElseThrow {
+            userRepository.findById(UUID.fromString(userId)).orElseThrow {
                 ResponseStatusException(HttpStatusCode.valueOf(401), "Invalid refresh token.")
             }
 

@@ -1,9 +1,9 @@
 package com.picoding.fish.database.repositories
 
 import com.picoding.fish.database.models.User
-import org.springframework.data.repository.CrudRepository
+import org.springframework.data.jpa.repository.JpaRepository
 import java.util.UUID
 
-interface UserRepository : CrudRepository<User, UUID> {
+interface UserRepository : JpaRepository<User, UUID> {
     fun findByEmail(email: String): User?
 }
