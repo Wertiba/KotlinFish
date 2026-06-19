@@ -2,6 +2,7 @@ package com.picoding.fish.api.controllers
 
 import com.picoding.fish.database.models.User
 import com.picoding.fish.database.repositories.UserRepository
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -17,6 +18,7 @@ import java.util.UUID
 
 @RestController
 @RequestMapping("/api/users")
+@Tag(name = "Users", description = "API for users CRUD")
 class UserController(
     @Autowired private val userRepository: UserRepository,
 ) {

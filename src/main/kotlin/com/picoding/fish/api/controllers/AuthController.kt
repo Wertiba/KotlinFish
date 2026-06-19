@@ -6,6 +6,7 @@ import com.picoding.fish.core.schemas.user.UserInfoResponse
 import com.picoding.fish.core.schemas.user.UserLoginBody
 import com.picoding.fish.core.schemas.user.UserRegisterBody
 import com.picoding.fish.services.AuthService
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "Authentification", description = "API for users authentication")
 class AuthController(
     private val authService: AuthService,
 ) {
