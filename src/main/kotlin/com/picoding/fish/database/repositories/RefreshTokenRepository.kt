@@ -14,4 +14,6 @@ interface RefreshTokenRepository : JpaRepository<RefreshToken, UUID> {
         userId: UUID,
         hashedToken: String,
     )
+
+    fun deleteByHashedToken(hashedToken: String)
 }

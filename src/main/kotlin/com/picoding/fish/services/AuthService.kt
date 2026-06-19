@@ -67,6 +67,11 @@ class AuthService(
         )
     }
 
+    fun logout(refreshToken: String) {
+        val hashed = hashToken(refreshToken)
+        refreshTokenRepo.deleteByHashedToken(hashed)
+    }
+
     @Transactional
     fun refresh(refreshToken: String): TokenPair {
         if (!jwtService.validateRefreshToken(refreshToken)) {
