@@ -6,7 +6,7 @@ import com.picoding.fish.core.schemas.token.TokenPair
 import com.picoding.fish.core.schemas.user.UserLoginBody
 import com.picoding.fish.core.schemas.user.UserReadResponse
 import com.picoding.fish.core.schemas.user.UserRegisterBody
-import com.picoding.fish.core.security.HashEncoder
+import com.picoding.fish.core.utils.HashEncoder
 import com.picoding.fish.database.models.RefreshToken
 import com.picoding.fish.database.models.User
 import com.picoding.fish.database.repositories.RefreshTokenRepository
@@ -67,6 +67,7 @@ class AuthService(
         )
     }
 
+    @Transactional
     fun logout(refreshToken: String) {
         val hashed = hashToken(refreshToken)
         refreshTokenRepo.deleteByHashedToken(hashed)

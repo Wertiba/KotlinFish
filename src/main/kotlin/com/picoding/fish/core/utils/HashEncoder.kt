@@ -1,4 +1,4 @@
-package com.picoding.fish.core.security
+package com.picoding.fish.core.utils
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component

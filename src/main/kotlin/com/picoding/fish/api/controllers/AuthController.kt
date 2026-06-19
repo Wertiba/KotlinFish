@@ -53,7 +53,7 @@ class AuthController(
         val cookie = cookieHelper.clearCookie()
 
         return ResponseEntity
-            .ok()
+            .noContent()
             .header(HttpHeaders.SET_COOKIE, cookie.toString())
             .build()
     }

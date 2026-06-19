@@ -1,4 +1,4 @@
-package com.picoding.fish.core.security
+package com.picoding.fish.api.utils.security
 
 import com.picoding.fish.services.JWTService
 import jakarta.servlet.FilterChain

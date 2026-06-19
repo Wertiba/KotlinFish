@@ -1,13 +1,11 @@
-package com.picoding.fish.core.security
+package com.picoding.fish.api.utils.security
 
 import jakarta.servlet.DispatcherType
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.HttpStatus
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.web.authentication.HttpStatusEntryPoint
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 @Configuration
@@ -15,7 +13,10 @@ class SecurityConfig(
     private val jwtAuthFilter: JWTAuthFilter,
 ) {
     @Bean
-    fun filterChain(httpSecurity: HttpSecurity): SecurityFilterChain =
+    fun securityFilterChain(
+        httpSecurity: HttpSecurity,
+        jwtAuthEntryPoint: JwtAuthEntryPoint,
+    ): SecurityFilterChain =
         httpSecurity
             .csrf { csrf -> csrf.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
@@ -37,7 +38,7 @@ class SecurityConfig(
                     .authenticated()
             }.exceptionHandling { configurer ->
                 configurer
-                    .authenticationEntryPoint(HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                    .authenticationEntryPoint(jwtAuthEntryPoint)
             }.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
             .build()
 }
