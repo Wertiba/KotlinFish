@@ -35,6 +35,16 @@ data class UserRegisterBody(
         message = "FullName must be at least 2 characters long and contain only uppercase, lowercase and _ symbols.",
     )
     val fullName: String,
+) : UserDataBody
+
+data class AdminRegisterUserBody(
+    override val email: String,
+    override val password: String,
+    @get:Pattern(
+        regexp = "^[a-zA-Z_]{2,}$",
+        message = "FullName must be at least 2 characters long and contain only uppercase, lowercase and _ symbols.",
+    )
+    val fullName: String,
     val role: UserRole,
 ) : UserDataBody
 

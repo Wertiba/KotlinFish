@@ -29,7 +29,7 @@ class AuthService(
     private val hashEncoder: HashEncoder,
 ) {
     fun register(data: UserRegisterBody): UserReadResponse {
-        val (email, password, fullName, role) = data
+        val (email, password, fullName) = data
         var user = userRepository.findByEmail(email.trim())
         if (user != null) {
             throw userAlreadyExists(email)
@@ -40,7 +40,6 @@ class AuthService(
                     email = email,
                     password = hashEncoder.encode(password),
                     fullName = fullName,
-                    role = role,
                 ),
             )
         return user.toReadResponse()

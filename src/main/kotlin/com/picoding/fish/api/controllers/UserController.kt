@@ -1,7 +1,7 @@
 package com.picoding.fish.api.controllers
 
+import com.picoding.fish.core.schemas.user.AdminRegisterUserBody
 import com.picoding.fish.core.schemas.user.UserReadResponse
-import com.picoding.fish.core.schemas.user.UserRegisterBody
 import com.picoding.fish.core.utils.PageResponse
 import com.picoding.fish.services.UserService
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -33,7 +33,7 @@ class UserController(
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     fun createUser(
-        @RequestBody body: UserRegisterBody,
+        @RequestBody body: AdminRegisterUserBody,
     ): UserReadResponse = userService.createUser(body)
 
     @GetMapping("/{id}")
@@ -44,7 +44,7 @@ class UserController(
     @PutMapping("/{id}")
     fun updateUserById(
         @PathVariable("id") userId: UUID,
-        @RequestBody body: UserRegisterBody,
+        @RequestBody body: AdminRegisterUserBody,
     ): UserReadResponse = userService.updateUserById(userId, body)
 
     @DeleteMapping("/{id}")

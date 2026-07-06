@@ -18,5 +18,5 @@ data class User(
     val email: String,
     val password: String,
     val fullName: String,
-    val role: UserRole,
+    val role: UserRole = UserRole.USER,
 )
