@@ -1,9 +1,9 @@
 package com.picoding.fish.services
 
+import com.picoding.fish.core.Settings
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatusCode
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
@@ -12,11 +12,9 @@ import java.util.Date
 
 @Service
 class JWTService(
-    @Value("\${app.security.jwt-secret}") private val jwtSecret: String,
+    private val settings: Settings,
 ) {
-    private val secretKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(jwtSecret))
-    private val accessTokenValidMs = 15L * 60L * 1000L
-    val refreshTokenValidMs = 30L * 24 * 60 * 60 * 1000L
+    private val secretKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(settings.security.jwtSecret))
 
     private fun parseAllClaims(token: String): Claims? {
         val rawToken =
@@ -64,9 +62,9 @@ class JWTService(
         return tokenType == type
     }
 
-    fun generateAccessToken(userId: String): String = generateToken(userId, "access", accessTokenValidMs)
+    fun generateAccessToken(userId: String): String = generateToken(userId, "access", settings.security.accessTokenValidMs)
 
-    fun generateRefreshToken(userId: String): String = generateToken(userId, "refresh", refreshTokenValidMs)
+    fun generateRefreshToken(userId: String): String = generateToken(userId, "refresh", settings.security.refreshTokenValidMs)
 
     fun validateAccessToken(token: String): Boolean = validateToken(token, "access")
 

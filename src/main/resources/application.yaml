@@ -27,9 +27,9 @@ spring:
 
 app:
   security:
-    jwt-secret: ${JWT_SECRET}
-#    token-validity-ms: 3600000
-#  cors:
-#    allowed-origins:
-#      - "http://localhost:3000"
-#      - "https://example.com"
+    access-token-expiration: 15m
+    refresh-token-expiration: 30d
+  cors:
+    allowed-origins:
+      - "http://localhost:8080"
+      - "https://example.com"

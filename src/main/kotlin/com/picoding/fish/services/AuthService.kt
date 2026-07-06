@@ -1,11 +1,12 @@
 package com.picoding.fish.services
 
 import com.picoding.fish.api.exceptions.userAlreadyExists
+import com.picoding.fish.core.Settings
 import com.picoding.fish.core.mappers.toReadResponse
 import com.picoding.fish.core.schemas.token.TokenPair
 import com.picoding.fish.core.schemas.user.UserLoginBody
-import com.picoding.fish.core.schemas.user.UserReadResponse
 import com.picoding.fish.core.schemas.user.UserRegisterBody
+import com.picoding.fish.core.schemas.user.UserRegisterResponse
 import com.picoding.fish.core.utils.HashEncoder
 import com.picoding.fish.database.models.RefreshToken
 import com.picoding.fish.database.models.User
@@ -27,8 +28,9 @@ class AuthService(
     private val userRepository: UserRepository,
     private val refreshTokenRepo: RefreshTokenRepository,
     private val hashEncoder: HashEncoder,
+    private val settings: Settings,
 ) {
-    fun register(data: UserRegisterBody): UserReadResponse {
+    fun register(data: UserRegisterBody): UserRegisterResponse {
         val (email, password, fullName) = data
         var user = userRepository.findByEmail(email.trim())
         if (user != null) {
@@ -42,7 +44,11 @@ class AuthService(
                     fullName = fullName,
                 ),
             )
-        return user.toReadResponse()
+
+        val accessToken = generateTokenPair(user).accessToken
+        val expiresIn = settings.security.accessTokenExpiration.seconds
+        val userData = user.toReadResponse()
+        return UserRegisterResponse(accessToken = accessToken, expiresIn = expiresIn, user = userData)
     }
 
     fun login(data: UserLoginBody): TokenPair {
@@ -55,15 +61,7 @@ class AuthService(
             throw BadCredentialsException("Invalid password.")
         }
 
-        val newAccessToken = jwtService.generateAccessToken(user.id.toString())
-        val newRefreshToken = jwtService.generateRefreshToken(user.id.toString())
-
-        storeRefreshToken(user.id!!, newRefreshToken)
-
-        return TokenPair(
-            accessToken = newAccessToken,
-            refreshToken = newRefreshToken,
-        )
+        return generateTokenPair(user)
     }
 
     @Transactional
@@ -90,7 +88,11 @@ class AuthService(
 
         refreshTokenRepo.deleteByidAndHashedToken(user.id, hashed)
 
-        val newAccessToken = jwtService.generateAccessToken(user.id.toString())
+        return generateTokenPair(user)
+    }
+
+    private fun generateTokenPair(user: User): TokenPair {
+        val newAccessToken = jwtService.generateAccessToken(user.id!!.toString())
         val newRefreshToken = jwtService.generateRefreshToken(user.id.toString())
 
         storeRefreshToken(user.id, newRefreshToken)
@@ -106,7 +108,7 @@ class AuthService(
         rawRefreshToken: String,
     ) {
         val hashed = hashToken(rawRefreshToken)
-        val expiryMs = jwtService.refreshTokenValidMs
+        val expiryMs = settings.security.refreshTokenValidMs
         val expiryAt = Instant.now().plusMillis(expiryMs)
 
         refreshTokenRepo.save(

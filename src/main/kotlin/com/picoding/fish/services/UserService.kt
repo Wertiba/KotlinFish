@@ -16,12 +16,6 @@ import java.util.UUID
 class UserService(
     private val userRepository: UserRepository,
 ) {
-    private fun getUserByUserId(userId: UUID): User =
-        userRepository.findById(userId).orElse(null)
-            ?: throw userNotFound()
-
-    private fun getUserByUserEmail(email: String): User = userRepository.findByEmail(email) ?: throw userAlreadyExists(email)
-
     fun getAllUsers(pageable: Pageable): PageResponse<UserReadResponse> {
         val page = userRepository.findAll(pageable)
         return PageResponse.of(page.map { it.toReadResponse() })
@@ -62,4 +56,10 @@ class UserService(
         getUserByUserId(userId)
         userRepository.deleteById(userId)
     }
+
+    private fun getUserByUserId(userId: UUID): User =
+        userRepository.findById(userId).orElse(null)
+            ?: throw userNotFound()
+
+    private fun getUserByUserEmail(email: String): User = userRepository.findByEmail(email) ?: throw userAlreadyExists(email)
 }

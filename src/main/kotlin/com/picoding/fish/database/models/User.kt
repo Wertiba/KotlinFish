@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import org.hibernate.annotations.UuidGenerator
+import java.time.Instant
 import java.util.UUID
 
 @Entity
@@ -19,4 +20,7 @@ data class User(
     val password: String,
     val fullName: String,
     val role: UserRole = UserRole.USER,
+    val isActive: Boolean = true,
+    val createdAt: Instant = Instant.now(),
+    val updatedAt: Instant = Instant.now(),
 )

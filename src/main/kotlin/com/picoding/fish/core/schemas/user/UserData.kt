@@ -2,6 +2,7 @@ package com.picoding.fish.core.schemas.user
 
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.Pattern
+import java.time.Instant
 import java.util.UUID
 
 interface UserDataBody {
@@ -13,13 +14,6 @@ interface UserDataBody {
         message = "Password must be at least 9 characters long and contain at least one digit, uppercase and lowercase character.",
     )
     val password: String
-}
-
-interface UserDataResponse {
-    val id: UUID
-    val email: String
-    val fullName: String
-    val role: UserRole
 }
 
 data class UserLoginBody(
@@ -49,8 +43,17 @@ data class AdminRegisterUserBody(
 ) : UserDataBody
 
 data class UserReadResponse(
-    override val id: UUID,
-    override val email: String,
-    override val fullName: String,
-    override val role: UserRole,
-) : UserDataResponse
+    val id: UUID,
+    val email: String,
+    val fullName: String,
+    val role: UserRole,
+    val isActive: Boolean,
+    val createdAt: Instant,
+    val updatedAt: Instant,
+)
+
+data class UserRegisterResponse(
+    val accessToken: String,
+    val expiresIn: Long,
+    val user: UserReadResponse,
+)

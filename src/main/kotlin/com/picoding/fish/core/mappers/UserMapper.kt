@@ -9,4 +9,7 @@ fun User.toReadResponse() =
         email = email,
         fullName = fullName,
         role = role,
+        isActive = isActive,
+        createdAt = createdAt,
+        updatedAt = updatedAt,
     )
