@@ -1,1 +1,1 @@
-# Example project
+# Example Fish project
