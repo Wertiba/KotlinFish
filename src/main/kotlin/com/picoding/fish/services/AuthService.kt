@@ -2,11 +2,11 @@ package com.picoding.fish.services
 
 import com.picoding.fish.api.exceptions.userAlreadyExists
 import com.picoding.fish.core.Settings
-import com.picoding.fish.core.mappers.toReadResponse
+import com.picoding.fish.core.mappers.toTokenResponse
 import com.picoding.fish.core.schemas.token.TokenPair
+import com.picoding.fish.core.schemas.user.UserAndAccessTokenResponse
 import com.picoding.fish.core.schemas.user.UserLoginBody
 import com.picoding.fish.core.schemas.user.UserRegisterBody
-import com.picoding.fish.core.schemas.user.UserRegisterResponse
 import com.picoding.fish.core.utils.HashEncoder
 import com.picoding.fish.database.models.RefreshToken
 import com.picoding.fish.database.models.User
@@ -30,7 +30,7 @@ class AuthService(
     private val hashEncoder: HashEncoder,
     private val settings: Settings,
 ) {
-    fun register(data: UserRegisterBody): UserRegisterResponse {
+    fun register(data: UserRegisterBody): UserAndAccessTokenResponse {
         val (email, password, fullName) = data
         var user = userRepository.findByEmail(email.trim())
         if (user != null) {
@@ -44,14 +44,10 @@ class AuthService(
                     fullName = fullName,
                 ),
             )
-
-        val accessToken = generateTokenPair(user).accessToken
-        val expiresIn = settings.security.accessTokenExpiration.seconds
-        val userData = user.toReadResponse()
-        return UserRegisterResponse(accessToken = accessToken, expiresIn = expiresIn, user = userData)
+        return user.toTokenResponse(generateTokenPair(user).accessToken, settings.security.accessTokenExpiration.seconds)
     }
 
-    fun login(data: UserLoginBody): TokenPair {
+    fun login(data: UserLoginBody): Pair<TokenPair, UserAndAccessTokenResponse> {
         val (email, password) = data
         val user =
             userRepository.findByEmail(email)
@@ -61,7 +57,8 @@ class AuthService(
             throw BadCredentialsException("Invalid password.")
         }
 
-        return generateTokenPair(user)
+        val tokenPair = generateTokenPair(user)
+        return tokenPair to user.toTokenResponse(tokenPair.accessToken, settings.security.accessTokenExpiration.seconds)
     }
 
     @Transactional

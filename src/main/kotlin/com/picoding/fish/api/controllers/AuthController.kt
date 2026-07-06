@@ -3,9 +3,9 @@ package com.picoding.fish.api.controllers
 import com.picoding.fish.api.utils.cookie.CookieHelper
 import com.picoding.fish.core.schemas.requests.RefreshRequest
 import com.picoding.fish.core.schemas.token.TokenPair
+import com.picoding.fish.core.schemas.user.UserAndAccessTokenResponse
 import com.picoding.fish.core.schemas.user.UserLoginBody
 import com.picoding.fish.core.schemas.user.UserRegisterBody
-import com.picoding.fish.core.schemas.user.UserRegisterResponse
 import com.picoding.fish.services.AuthService
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -30,19 +30,19 @@ class AuthController(
     @ResponseStatus(HttpStatus.CREATED)
     fun register(
         @Valid @RequestBody body: UserRegisterBody,
-    ): UserRegisterResponse = authService.register(body)
+    ): UserAndAccessTokenResponse = authService.register(body)
 
     @PostMapping("/login")
     fun login(
         @RequestBody body: UserLoginBody,
-    ): ResponseEntity<TokenPair> {
-        val tokenPair = authService.login(body)
+    ): ResponseEntity<UserAndAccessTokenResponse> {
+        val (tokenPair, data) = authService.login(body)
         val cookie = cookieHelper.getCookie(tokenPair.refreshToken)
 
         return ResponseEntity
             .ok()
             .header(HttpHeaders.SET_COOKIE, cookie.toString())
-            .body(tokenPair)
+            .body(data)
     }
 
     @PostMapping("/logout")

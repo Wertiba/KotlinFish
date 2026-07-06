@@ -1,7 +1,9 @@
 package com.picoding.fish.core.mappers
 
+import com.picoding.fish.core.schemas.user.UserAndAccessTokenResponse
 import com.picoding.fish.core.schemas.user.UserReadResponse
 import com.picoding.fish.database.models.User
+import kotlin.String
 
 fun User.toReadResponse() =
     UserReadResponse(
@@ -13,3 +15,12 @@ fun User.toReadResponse() =
         createdAt = createdAt,
         updatedAt = updatedAt,
     )
+
+fun User.toTokenResponse(
+    accessToken: String,
+    expiresIn: Long,
+) = UserAndAccessTokenResponse(
+    accessToken = accessToken,
+    expiresIn = expiresIn,
+    user = toReadResponse(),
+)

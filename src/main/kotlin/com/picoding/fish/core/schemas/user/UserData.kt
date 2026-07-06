@@ -52,7 +52,7 @@ data class UserReadResponse(
     val updatedAt: Instant,
 )
 
-data class UserRegisterResponse(
+data class UserAndAccessTokenResponse(
     val accessToken: String,
     val expiresIn: Long,
     val user: UserReadResponse,
