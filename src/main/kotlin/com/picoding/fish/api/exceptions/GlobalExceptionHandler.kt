@@ -4,6 +4,7 @@ import com.picoding.fish.core.mappers.toApiError
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -36,11 +37,24 @@ class GlobalExceptionHandler(
         ResponseEntity(
             ApiError(
                 code = "UNAUTHORIZED",
-                message = ex.reason ?: "Unauthorized.",
+                message = ex.reason ?: "The token is missing or invalid.",
                 traceId = UUID.randomUUID().toString(),
                 timestamp = Instant.now().toString(),
                 path = request.requestURI,
             ),
             ex.statusCode,
+        )
+
+    @ExceptionHandler(AccessDeniedException::class)
+    fun handleAccessDenied(): ResponseEntity<ApiError> =
+        ResponseEntity(
+            ApiError(
+                code = "FORBIDDEN",
+                message = "Insufficient rights to perform the operation.",
+                traceId = UUID.randomUUID().toString(),
+                timestamp = Instant.now().toString(),
+                path = request.requestURI,
+            ),
+            HttpStatus.FORBIDDEN,
         )
 }
