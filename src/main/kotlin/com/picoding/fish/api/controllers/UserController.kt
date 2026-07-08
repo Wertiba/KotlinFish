@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -22,7 +23,7 @@ import java.util.UUID
 
 @RestController
 @RequestMapping("/users")
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasRole(T(com.picoding.fish.core.schemas.user.UserRole).ADMIN.name())")
 @Tag(name = "Users", description = "API for users CRUD")
 class UserController(
     private val userService: UserService,
@@ -54,4 +55,20 @@ class UserController(
     fun deleteUserById(
         @PathVariable("id") userId: UUID,
     ) = userService.deleteUserById(userId)
+
+    @GetMapping("/me")
+    @PreAuthorize(
+        "hasAnyRole(" +
+            "T(com.picoding.fish.core.schemas.user.UserRole).ADMIN.name(), " +
+            "T(com.picoding.fish.core.schemas.user.UserRole).USER.name())",
+    )
+    fun getMe(
+        @AuthenticationPrincipal userId: String,
+    ): UserReadResponse = userService.getUserById(UUID.fromString(userId))
+
+    @PutMapping("/me")
+    fun updateMe(
+        @AuthenticationPrincipal userId: String,
+        @RequestBody body: AdminRegisterUserBody,
+    ): UserReadResponse = userService.updateUserById(UUID.fromString(userId), body)
 }
