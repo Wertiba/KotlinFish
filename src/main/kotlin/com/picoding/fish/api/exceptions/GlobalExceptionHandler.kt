@@ -19,6 +19,7 @@ class GlobalExceptionHandler(
     @ExceptionHandler(AppException::class)
     fun handleAppException(ex: AppException): ResponseEntity<ApiError> = ResponseEntity(ex.toApiError(request.requestURI), ex.status)
 
+    // for auth
     @ExceptionHandler(BadCredentialsException::class)
     fun handleBadCredentials(ex: BadCredentialsException): ResponseEntity<ApiError> =
         ResponseEntity(
@@ -32,6 +33,7 @@ class GlobalExceptionHandler(
             HttpStatus.UNAUTHORIZED,
         )
 
+    // invalid token
     @ExceptionHandler(ResponseStatusException::class)
     fun handleResponseStatus(ex: ResponseStatusException): ResponseEntity<ApiError> =
         ResponseEntity(
@@ -45,6 +47,7 @@ class GlobalExceptionHandler(
             ex.statusCode,
         )
 
+    // invalid role
     @ExceptionHandler(AccessDeniedException::class)
     fun handleAccessDenied(): ResponseEntity<ApiError> =
         ResponseEntity(
