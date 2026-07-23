@@ -42,6 +42,11 @@ data class AdminRegisterUserBody(
     val role: UserRole,
 ) : UserDataBody
 
+data class UserPutBody(
+    val fullName: String,
+    val role: UserRole,
+)
+
 data class UserReadResponse(
     val id: UUID,
     val email: String,

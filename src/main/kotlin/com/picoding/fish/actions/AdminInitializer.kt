@@ -18,7 +18,7 @@ class AdminInitializer(
     override fun run(args: ApplicationArguments) {
         val existingAdmin = userRepository.findByEmail(settings.admin.email)
         if (existingAdmin != null) {
-            logger.warn("Admin already exists!")
+            logger.info("Admin already exists!")
             return
         }
 

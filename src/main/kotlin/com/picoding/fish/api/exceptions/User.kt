@@ -2,21 +2,23 @@ package com.picoding.fish.api.exceptions
 
 import org.springframework.http.HttpStatus
 
-fun userAlreadyExists(email: String) =
-    AppException(
-        code = "EMAIL_ALREADY_EXISTS",
-        message = "A user with this email already exists.",
-        status = HttpStatus.CONFLICT,
-        details =
-            mapOf(
-                "field" to "email",
-                "value" to email,
-            ),
-    )
+fun userAlreadyExists(
+    email: String,
+    message: String = "A user with this email already exists.",
+) = AppException(
+    code = "EMAIL_ALREADY_EXISTS",
+    message = message,
+    status = HttpStatus.CONFLICT,
+    details =
+        mapOf(
+            "field" to "email",
+            "value" to email,
+        ),
+)
 
-fun userNotFound() =
+fun userNotFound(message: String = "User not found.") =
     AppException(
         code = "NOT_FOUND",
-        message = "User not found.",
+        message = message,
         status = HttpStatus.NOT_FOUND,
     )

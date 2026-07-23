@@ -4,6 +4,7 @@ import com.picoding.fish.api.exceptions.userAlreadyExists
 import com.picoding.fish.api.exceptions.userNotFound
 import com.picoding.fish.core.mappers.toReadResponse
 import com.picoding.fish.core.schemas.user.AdminRegisterUserBody
+import com.picoding.fish.core.schemas.user.UserPutBody
 import com.picoding.fish.core.schemas.user.UserReadResponse
 import com.picoding.fish.core.utils.HashEncoder
 import com.picoding.fish.core.utils.PageResponse
@@ -39,14 +40,14 @@ class UserService(
 
     fun updateUserById(
         userId: UUID,
-        data: AdminRegisterUserBody,
+        data: UserPutBody,
     ): UserReadResponse {
         val user = getUserByUserId(userId)
         val updatedUser =
             userRepository.save(
                 user.copy(
-                    email = data.email,
-                    password = hashEncoder.encode(data.password),
+                    email = user.email,
+                    password = hashEncoder.encode(user.password),
                     fullName = data.fullName,
                     role = data.role,
                 ),

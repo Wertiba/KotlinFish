@@ -1,6 +1,7 @@
 package com.picoding.fish.api.controllers
 
 import com.picoding.fish.core.schemas.user.AdminRegisterUserBody
+import com.picoding.fish.core.schemas.user.UserPutBody
 import com.picoding.fish.core.schemas.user.UserReadResponse
 import com.picoding.fish.core.utils.PageResponse
 import com.picoding.fish.services.UserService
@@ -47,14 +48,8 @@ class UserController(
     @PutMapping("/{id}")
     fun updateUserById(
         @PathVariable("id") userId: UUID,
-        @RequestBody body: AdminRegisterUserBody,
+        @RequestBody body: UserPutBody,
     ): UserReadResponse = userService.updateUserById(userId, body)
-
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun deleteUserById(
-        @PathVariable("id") userId: UUID,
-    ) = userService.deleteUserById(userId)
 
     @GetMapping("/me")
     @PreAuthorize(
@@ -69,6 +64,12 @@ class UserController(
     @PutMapping("/me")
     fun updateMe(
         @AuthenticationPrincipal userId: String,
-        @RequestBody body: AdminRegisterUserBody,
+        @RequestBody body: UserPutBody,
     ): UserReadResponse = userService.updateUserById(UUID.fromString(userId), body)
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun deleteUserById(
+        @PathVariable("id") userId: UUID,
+    ) = userService.deleteUserById(userId)
 }
