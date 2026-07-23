@@ -14,6 +14,7 @@ data class Settings
     constructor(
         val security: Security,
         val cors: Cors,
+        val admin: Admin,
     ) {
         data class Security(
             @field:NotBlank
@@ -33,5 +34,11 @@ data class Settings
         data class Cors(
             @DefaultValue
             val allowedOrigins: List<String> = emptyList(),
+        )
+
+        data class Admin(
+            val email: String,
+            val password: String,
+            val fullname: String,
         )
     }
