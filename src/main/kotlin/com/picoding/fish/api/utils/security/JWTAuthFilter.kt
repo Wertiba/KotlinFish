@@ -1,6 +1,7 @@
 package com.picoding.fish.api.utils.security
 
 import com.picoding.fish.api.exceptions.AppException
+import com.picoding.fish.api.exceptions.userInactive
 import com.picoding.fish.api.exceptions.userNotFound
 import com.picoding.fish.database.repositories.UserRepository
 import com.picoding.fish.services.JWTService
@@ -36,6 +37,10 @@ class JWTAuthFilter(
                     val user =
                         userRepository.findById(UUID.fromString(userId)).orElse(null)
                             ?: throw userNotFound("User not found (invalid userId).")
+
+                    if (!user.isActive) {
+                        throw userInactive()
+                    }
 
                     val authorities = listOf(SimpleGrantedAuthority("ROLE_${user.role}"))
                     val auth = UsernamePasswordAuthenticationToken(userId, null, authorities)

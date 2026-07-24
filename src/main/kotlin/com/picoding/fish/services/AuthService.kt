@@ -1,6 +1,7 @@
 package com.picoding.fish.services
 
 import com.picoding.fish.api.exceptions.userAlreadyExists
+import com.picoding.fish.api.exceptions.userInactive
 import com.picoding.fish.core.Settings
 import com.picoding.fish.core.mappers.toTokenResponse
 import com.picoding.fish.core.schemas.token.TokenPair
@@ -56,6 +57,7 @@ class AuthService(
         if (!hashEncoder.matches(password, user.password)) {
             throw BadCredentialsException("Invalid password.")
         }
+        isUserActive(user)
 
         val tokenPair = generateTokenPair(user)
         return tokenPair to user.toTokenResponse(tokenPair.accessToken, settings.security.accessTokenExpiration.seconds)
@@ -78,6 +80,7 @@ class AuthService(
             userRepository.findById(UUID.fromString(userId)).orElseThrow {
                 ResponseStatusException(HttpStatusCode.valueOf(401), "Invalid refresh token.")
             }
+        isUserActive(user)
 
         val hashed = hashToken(refreshToken)
         refreshTokenRepo.findByidAndHashedToken(user.id!!, hashed)
@@ -121,5 +124,11 @@ class AuthService(
         val digest = MessageDigest.getInstance("SHA-256")
         val hashBytes = digest.digest(token.encodeToByteArray())
         return Base64.getEncoder().encodeToString(hashBytes)
+    }
+
+    private fun isUserActive(user: User) {
+        if (!user.isActive) {
+            throw userInactive()
+        }
     }
 }

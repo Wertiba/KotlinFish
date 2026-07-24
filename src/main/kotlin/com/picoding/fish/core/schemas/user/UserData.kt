@@ -45,6 +45,7 @@ data class AdminRegisterUserBody(
 data class UserPutBody(
     val fullName: String,
     val role: UserRole,
+    val isActive: Boolean,
 )
 
 data class UserReadResponse(

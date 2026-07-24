@@ -22,3 +22,10 @@ fun userNotFound(message: String = "User not found.") =
         message = message,
         status = HttpStatus.NOT_FOUND,
     )
+
+fun userInactive(message: String = "User account is inactive.") =
+    AppException(
+        code = "USER_LOCKED",
+        message = message,
+        status = HttpStatus.LOCKED,
+    )

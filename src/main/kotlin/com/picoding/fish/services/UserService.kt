@@ -46,10 +46,9 @@ class UserService(
         val updatedUser =
             userRepository.save(
                 user.copy(
-                    email = user.email,
-                    password = hashEncoder.encode(user.password),
                     fullName = data.fullName,
                     role = data.role,
+                    isActive = data.isActive,
                 ),
             )
         return updatedUser.toReadResponse()
