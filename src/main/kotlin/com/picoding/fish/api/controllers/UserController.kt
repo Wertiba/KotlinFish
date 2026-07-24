@@ -6,6 +6,7 @@ import com.picoding.fish.core.schemas.user.UserReadResponse
 import com.picoding.fish.core.utils.PageResponse
 import com.picoding.fish.services.UserService
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
@@ -37,7 +38,7 @@ class UserController(
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     fun createUser(
-        @RequestBody body: AdminRegisterUserBody,
+        @Valid @RequestBody body: AdminRegisterUserBody,
     ): UserReadResponse = userService.createUser(body)
 
     @GetMapping("/{id}")
@@ -48,7 +49,7 @@ class UserController(
     @PutMapping("/{id}")
     fun updateUserById(
         @PathVariable("id") userId: UUID,
-        @RequestBody body: UserPutBody,
+        @Valid @RequestBody body: UserPutBody,
     ): UserReadResponse = userService.updateUserById(userId, body)
 
     @GetMapping("/me")
@@ -69,7 +70,7 @@ class UserController(
     )
     fun updateMe(
         @AuthenticationPrincipal userId: String,
-        @RequestBody body: UserPutBody,
+        @Valid @RequestBody body: UserPutBody,
     ): UserReadResponse = userService.updateUserById(UUID.fromString(userId), body)
 
     @DeleteMapping("/{id}")

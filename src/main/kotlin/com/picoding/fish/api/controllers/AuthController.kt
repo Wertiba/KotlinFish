@@ -33,7 +33,7 @@ class AuthController(
 
     @PostMapping("/login")
     fun login(
-        @RequestBody body: UserLoginBody,
+        @Valid @RequestBody body: UserLoginBody,
     ): ResponseEntity<UserAndAccessTokenResponse> {
         val (tokenPair, data) = authService.login(body)
         val cookie = cookieHelper.getCookie(tokenPair.refreshToken)

@@ -1,48 +1,40 @@
 package com.picoding.fish.core.schemas.user
 
-import jakarta.validation.constraints.Email
-import jakarta.validation.constraints.Pattern
+import com.picoding.fish.core.validation.ValidEmail
+import com.picoding.fish.core.validation.ValidFullName
+import com.picoding.fish.core.validation.ValidPassword
+import jakarta.validation.constraints.NotBlank
 import java.time.Instant
 import java.util.UUID
 
-interface UserDataBody {
-    @get:Email(message = "Invalid email format.")
-    val email: String
-
-    @get:Pattern(
-        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{9,}$",
-        message = "Password must be at least 9 characters long and contain at least one digit, uppercase and lowercase character.",
-    )
-    val password: String
-}
-
 data class UserLoginBody(
-    override val email: String,
-    override val password: String,
-) : UserDataBody
+    @get:ValidEmail
+    val email: String,
+    @get:NotBlank(message = "Password must not be blank.")
+    val password: String,
+)
 
 data class UserRegisterBody(
-    override val email: String,
-    override val password: String,
-    @get:Pattern(
-        regexp = "^[a-zA-Z_]{2,}$",
-        message = "FullName must be at least 2 characters long and contain only uppercase, lowercase and _ symbols.",
-    )
+    @get:ValidEmail
+    val email: String,
+    @get:ValidPassword
+    val password: String,
+    @get:ValidFullName
     val fullName: String,
-) : UserDataBody
+)
 
 data class AdminRegisterUserBody(
-    override val email: String,
-    override val password: String,
-    @get:Pattern(
-        regexp = "^[a-zA-Z_]{2,}$",
-        message = "FullName must be at least 2 characters long and contain only uppercase, lowercase and _ symbols.",
-    )
+    @get:ValidEmail
+    val email: String,
+    @get:ValidPassword
+    val password: String,
+    @get:ValidFullName
     val fullName: String,
     val role: UserRole,
-) : UserDataBody
+)
 
 data class UserPutBody(
+    @get:ValidFullName
     val fullName: String,
     val role: UserRole,
     val isActive: Boolean,
