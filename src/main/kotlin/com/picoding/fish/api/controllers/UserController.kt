@@ -62,6 +62,11 @@ class UserController(
     ): UserReadResponse = userService.getUserById(UUID.fromString(userId))
 
     @PutMapping("/me")
+    @PreAuthorize(
+        "hasAnyRole(" +
+            "T(com.picoding.fish.core.schemas.user.UserRole).ADMIN.name(), " +
+            "T(com.picoding.fish.core.schemas.user.UserRole).USER.name())",
+    )
     fun updateMe(
         @AuthenticationPrincipal userId: String,
         @RequestBody body: UserPutBody,

@@ -56,8 +56,12 @@ class UserService(
     }
 
     fun deleteUserById(userId: UUID) {
-        getUserByUserId(userId)
-        userRepository.deleteById(userId)
+        val user = getUserByUserId(userId)
+        userRepository.save(
+            user.copy(
+                isActive = false,
+            ),
+        )
     }
 
     private fun ensureEmailAvailable(email: String) {
