@@ -4,6 +4,7 @@ import com.picoding.fish.api.exceptions.userAlreadyExists
 import com.picoding.fish.api.exceptions.userInactive
 import com.picoding.fish.core.Settings
 import com.picoding.fish.core.mappers.toTokenResponse
+import com.picoding.fish.core.schemas.token.AccessTokenResponse
 import com.picoding.fish.core.schemas.token.TokenPair
 import com.picoding.fish.core.schemas.user.UserAndAccessTokenResponse
 import com.picoding.fish.core.schemas.user.UserLoginBody
@@ -70,7 +71,7 @@ class AuthService(
     }
 
     @Transactional
-    fun refresh(refreshToken: String): TokenPair {
+    fun refresh(refreshToken: String): Pair<TokenPair, AccessTokenResponse> {
         if (!jwtService.validateRefreshToken(refreshToken)) {
             throw ResponseStatusException(HttpStatusCode.valueOf(401), "Invalid refresh token.")
         }
@@ -83,12 +84,13 @@ class AuthService(
         isUserActive(user)
 
         val hashed = hashToken(refreshToken)
-        refreshTokenRepo.findByidAndHashedToken(user.id!!, hashed)
+        refreshTokenRepo.findByuserIdAndHashedToken(user.id!!, hashed)
             ?: throw ResponseStatusException(HttpStatusCode.valueOf(401), "Refresh token not recognized.")
 
-        refreshTokenRepo.deleteByidAndHashedToken(user.id, hashed)
+        refreshTokenRepo.deleteByuserIdAndHashedToken(user.id, hashed)
 
-        return generateTokenPair(user)
+        val tokenPair = generateTokenPair(user)
+        return tokenPair to AccessTokenResponse(tokenPair.accessToken, settings.security.accessTokenExpiration.seconds)
     }
 
     private fun generateTokenPair(user: User): TokenPair {

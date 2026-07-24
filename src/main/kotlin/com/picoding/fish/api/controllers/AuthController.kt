@@ -1,8 +1,7 @@
 package com.picoding.fish.api.controllers
 
 import com.picoding.fish.api.utils.cookie.CookieHelper
-import com.picoding.fish.core.schemas.requests.RefreshRequest
-import com.picoding.fish.core.schemas.token.TokenPair
+import com.picoding.fish.core.schemas.token.AccessTokenResponse
 import com.picoding.fish.core.schemas.user.UserAndAccessTokenResponse
 import com.picoding.fish.core.schemas.user.UserLoginBody
 import com.picoding.fish.core.schemas.user.UserRegisterBody
@@ -60,13 +59,13 @@ class AuthController(
 
     @PostMapping("/refresh")
     fun refresh(
-        @RequestBody body: RefreshRequest,
-    ): ResponseEntity<TokenPair> {
-        val tokenPair = authService.refresh(body.refreshToken)
+        @CookieValue("refreshToken") refreshToken: String,
+    ): ResponseEntity<AccessTokenResponse> {
+        val (tokenPair, data) = authService.refresh(refreshToken)
         val cookie = cookieHelper.getCookie(tokenPair.refreshToken)
         return ResponseEntity
             .ok()
             .header(HttpHeaders.SET_COOKIE, cookie.toString())
-            .body(tokenPair)
+            .body(data)
     }
 }

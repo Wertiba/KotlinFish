@@ -7,12 +7,12 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
 interface RefreshTokenRepository : JpaRepository<RefreshToken, UUID> {
-    fun findByidAndHashedToken(
-        id: UUID,
+    fun findByuserIdAndHashedToken(
+        userId: UUID,
         hashedToken: String,
     ): RefreshToken?
 
-    fun deleteByidAndHashedToken(
+    fun deleteByuserIdAndHashedToken(
         userId: UUID,
         hashedToken: String,
     )
