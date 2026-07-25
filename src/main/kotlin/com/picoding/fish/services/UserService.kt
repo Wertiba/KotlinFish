@@ -10,7 +10,7 @@ import com.picoding.fish.core.utils.HashEncoder
 import com.picoding.fish.core.utils.PageResponse
 import com.picoding.fish.database.models.User
 import com.picoding.fish.database.repositories.UserRepository
-import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.util.UUID
@@ -36,9 +36,12 @@ class UserService(
         return userRepository.save(createdUser).toReadResponse()
     }
 
-    fun getAllUsers(pageable: Pageable): PageResponse<UserReadResponse> {
-        val page = userRepository.findAllByOrderByIsActiveDescCreatedAtDesc(pageable)
-        return PageResponse.of(page.map { it.toReadResponse() })
+    fun getAllUsers(
+        page: Int,
+        size: Int,
+    ): PageResponse<UserReadResponse> {
+        val result = userRepository.findAllByOrderByIsActiveDescCreatedAtDesc(PageRequest.of(page, size))
+        return PageResponse.of(result.map { it.toReadResponse() })
     }
 
     fun getUserById(userId: UUID): UserReadResponse = getUserByUserId(userId).toReadResponse()
