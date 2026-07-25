@@ -15,7 +15,7 @@ class GlobalValidationHandler {
             it.defaultMessage ?: "Invalid value."
         }
         return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
+            .status(HttpStatus.UNPROCESSABLE_ENTITY)
             .body(mapOf("errors" to errors))
     }
 }

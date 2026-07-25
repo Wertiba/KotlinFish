@@ -1,9 +1,13 @@
 package com.picoding.fish.database.repositories
 
 import com.picoding.fish.database.models.User
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import java.util.UUID
 
 interface UserRepository : JpaRepository<User, UUID> {
     fun findByEmail(email: String): User?
+
+    fun findAllByOrderByIsActiveDescCreatedAtDesc(pageable: Pageable): Page<User>
 }

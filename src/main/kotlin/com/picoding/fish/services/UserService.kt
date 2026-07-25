@@ -20,7 +20,7 @@ class UserService(
     private val hashEncoder: HashEncoder,
 ) {
     fun getAllUsers(pageable: Pageable): PageResponse<UserReadResponse> {
-        val page = userRepository.findAll(pageable)
+        val page = userRepository.findAllByOrderByIsActiveDescCreatedAtDesc(pageable)
         return PageResponse.of(page.map { it.toReadResponse() })
     }
 
