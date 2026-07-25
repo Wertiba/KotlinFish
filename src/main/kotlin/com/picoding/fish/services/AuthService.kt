@@ -32,6 +32,7 @@ class AuthService(
     private val hashEncoder: HashEncoder,
     private val settings: Settings,
 ) {
+    @Transactional
     fun register(data: UserRegisterBody): Pair<String, UserAndAccessTokenResponse> {
         val (email, password, fullName) = data
         var user = userRepository.findByEmail(email.trim())
