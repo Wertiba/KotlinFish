@@ -13,6 +13,13 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/api/v1/health/ping"]
+      interval: 5s
+      timeout: 2s
+      retries: 10
+      start_period: 10s
+
   db:
     container_name: db
     image: postgres:16-alpine
