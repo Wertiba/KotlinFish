@@ -12,6 +12,7 @@ import com.picoding.fish.database.models.User
 import com.picoding.fish.database.repositories.UserRepository
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import java.time.Instant
 import java.util.UUID
 
 @Service
@@ -19,11 +20,6 @@ class UserService(
     private val userRepository: UserRepository,
     private val hashEncoder: HashEncoder,
 ) {
-    fun getAllUsers(pageable: Pageable): PageResponse<UserReadResponse> {
-        val page = userRepository.findAllByOrderByIsActiveDescCreatedAtDesc(pageable)
-        return PageResponse.of(page.map { it.toReadResponse() })
-    }
-
     fun createUser(data: AdminRegisterUserBody): UserReadResponse {
         ensureEmailAvailable(data.email)
         val createdUser =
@@ -34,6 +30,11 @@ class UserService(
                 role = data.role,
             )
         return userRepository.save(createdUser).toReadResponse()
+    }
+
+    fun getAllUsers(pageable: Pageable): PageResponse<UserReadResponse> {
+        val page = userRepository.findAllByOrderByIsActiveDescCreatedAtDesc(pageable)
+        return PageResponse.of(page.map { it.toReadResponse() })
     }
 
     fun getUserById(userId: UUID): UserReadResponse = getUserByUserId(userId).toReadResponse()
@@ -49,6 +50,7 @@ class UserService(
                     fullName = data.fullName,
                     role = data.role,
                     isActive = data.isActive,
+                    updatedAt = Instant.now(),
                 ),
             )
         return updatedUser.toReadResponse()
