@@ -55,3 +55,8 @@ data class UserAndAccessTokenResponse(
     val expiresIn: Long,
     val user: UserReadResponse,
 )
+
+enum class UserRole {
+    USER,
+    ADMIN,
+}
