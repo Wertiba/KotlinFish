@@ -14,6 +14,7 @@ fun User.toReadResponse() =
         isActive = isActive,
         createdAt = createdAt,
         updatedAt = updatedAt,
+        createdBy = createdBy!!,
     )
 
 fun User.toTokenResponse(

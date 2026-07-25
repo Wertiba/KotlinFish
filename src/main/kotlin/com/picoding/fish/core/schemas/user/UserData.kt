@@ -48,6 +48,7 @@ data class UserReadResponse(
     val isActive: Boolean,
     val createdAt: Instant,
     val updatedAt: Instant,
+    val createdBy: UUID,
 )
 
 data class UserAndAccessTokenResponse(

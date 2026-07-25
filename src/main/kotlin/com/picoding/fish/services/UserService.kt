@@ -20,7 +20,10 @@ class UserService(
     private val userRepository: UserRepository,
     private val hashEncoder: HashEncoder,
 ) {
-    fun createUser(data: AdminRegisterUserBody): UserReadResponse {
+    fun createUser(
+        data: AdminRegisterUserBody,
+        adminId: String,
+    ): UserReadResponse {
         ensureEmailAvailable(data.email)
         val createdUser =
             User(
@@ -28,6 +31,7 @@ class UserService(
                 password = hashEncoder.encode(data.password),
                 fullName = data.fullName,
                 role = data.role,
+                createdBy = UUID.fromString(adminId),
             )
         return userRepository.save(createdUser).toReadResponse()
     }

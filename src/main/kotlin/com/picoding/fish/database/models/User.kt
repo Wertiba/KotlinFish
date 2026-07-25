@@ -4,6 +4,7 @@ import com.picoding.fish.core.schemas.user.UserRole
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
+import jakarta.persistence.PrePersist
 import jakarta.persistence.Table
 import org.hibernate.annotations.UuidGenerator
 import java.time.Instant
@@ -21,6 +22,14 @@ data class User(
     val fullName: String,
     val role: UserRole = UserRole.USER,
     val isActive: Boolean = true,
+    var createdBy: UUID? = null,
     val createdAt: Instant = Instant.now(),
     val updatedAt: Instant = Instant.now(),
-)
+) {
+    @PrePersist
+    fun defaultCreatedBy() {
+        if (createdBy == null) {
+            createdBy = id
+        }
+    }
+}

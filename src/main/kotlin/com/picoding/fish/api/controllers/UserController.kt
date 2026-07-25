@@ -38,8 +38,9 @@ class UserController(
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     fun createUser(
+        @AuthenticationPrincipal userId: String,
         @Valid @RequestBody body: AdminRegisterUserBody,
-    ): UserReadResponse = userService.createUser(body)
+    ): UserReadResponse = userService.createUser(body, userId)
 
     @GetMapping("/{id}")
     fun getUserById(
