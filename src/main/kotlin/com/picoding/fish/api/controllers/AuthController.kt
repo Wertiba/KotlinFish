@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import java.net.URI
 
 @RestController
 @RequestMapping("/auth")
@@ -29,7 +30,15 @@ class AuthController(
     @ResponseStatus(HttpStatus.CREATED)
     fun register(
         @Valid @RequestBody body: UserRegisterBody,
-    ): UserAndAccessTokenResponse = authService.register(body)
+    ): ResponseEntity<UserAndAccessTokenResponse> {
+        val (refreshToken, data) = authService.register(body)
+        val cookie = cookieHelper.getCookie(refreshToken)
+        val location = URI.create("/api/v1/users/${data.user.id}")
+        return ResponseEntity
+            .created(location)
+            .header(HttpHeaders.SET_COOKIE, cookie.toString())
+            .body(data)
+    }
 
     @PostMapping("/login")
     fun login(

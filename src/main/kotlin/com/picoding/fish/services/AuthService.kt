@@ -32,7 +32,7 @@ class AuthService(
     private val hashEncoder: HashEncoder,
     private val settings: Settings,
 ) {
-    fun register(data: UserRegisterBody): UserAndAccessTokenResponse {
+    fun register(data: UserRegisterBody): Pair<String, UserAndAccessTokenResponse> {
         val (email, password, fullName) = data
         var user = userRepository.findByEmail(email.trim())
         if (user != null) {
@@ -46,7 +46,8 @@ class AuthService(
                     fullName = fullName,
                 ),
             )
-        return user.toTokenResponse(generateTokenPair(user).accessToken, settings.security.accessTokenExpiration.seconds)
+        val tokenPair = generateTokenPair(user)
+        return tokenPair.refreshToken to user.toTokenResponse(tokenPair.accessToken, settings.security.accessTokenExpiration.seconds)
     }
 
     fun login(data: UserLoginBody): Pair<TokenPair, UserAndAccessTokenResponse> {
