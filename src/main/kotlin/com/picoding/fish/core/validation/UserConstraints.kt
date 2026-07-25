@@ -35,7 +35,7 @@ annotation class ValidPassword(
 @Retention(AnnotationRetention.RUNTIME)
 @Constraint(validatedBy = [])
 @Pattern(
-    regexp = "^[a-zA-Z_]{2,200}$",
+    regexp = "^[а-яА-Яa-zA-Z_-]{2,200}$",
     message = "FullName must be at least 2 characters long and contain only uppercase, lowercase and _ symbols.",
 )
 annotation class ValidFullName(

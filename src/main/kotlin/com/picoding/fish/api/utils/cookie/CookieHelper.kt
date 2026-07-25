@@ -8,17 +8,18 @@ import java.time.Duration
 class CookieHelper {
     fun getCookie(
         token: String,
-        secure: Boolean = false,
-    ) = ResponseCookie
-        .from("refreshToken", token)
-        .httpOnly(true)
-        .secure(secure)
-        .path("/")
-        .maxAge(Duration.ofDays(7))
-        .sameSite("Lax")
-        .build()
+        secure: Boolean = true,
+    ): ResponseCookie =
+        ResponseCookie
+            .from("refreshToken", token)
+            .httpOnly(true)
+            .secure(secure)
+            .path("/")
+            .maxAge(Duration.ofDays(7))
+            .sameSite("Lax")
+            .build()
 
-    fun clearCookie() =
+    fun clearCookie(): ResponseCookie =
         ResponseCookie
             .from("refreshToken", "")
             .httpOnly(true)
