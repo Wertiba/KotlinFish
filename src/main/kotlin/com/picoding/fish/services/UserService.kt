@@ -2,15 +2,18 @@ package com.picoding.fish.services
 
 import com.picoding.fish.api.exceptions.userAlreadyExists
 import com.picoding.fish.api.exceptions.userNotFound
+import com.picoding.fish.api.utils.security.UserPrincipal
 import com.picoding.fish.core.mappers.toReadResponse
 import com.picoding.fish.core.schemas.user.AdminRegisterUserBody
 import com.picoding.fish.core.schemas.user.UserPutBody
 import com.picoding.fish.core.schemas.user.UserReadResponse
+import com.picoding.fish.core.schemas.user.UserRole
 import com.picoding.fish.core.utils.HashEncoder
 import com.picoding.fish.core.utils.PageResponse
 import com.picoding.fish.database.models.User
 import com.picoding.fish.database.repositories.UserRepository
 import org.springframework.data.domain.PageRequest
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.util.UUID
@@ -22,7 +25,7 @@ class UserService(
 ) {
     fun createUser(
         data: AdminRegisterUserBody,
-        adminId: String,
+        adminId: UUID,
     ): UserReadResponse {
         ensureEmailAvailable(data.email)
         val createdUser =
@@ -31,7 +34,7 @@ class UserService(
                 password = hashEncoder.encode(data.password),
                 fullName = data.fullName,
                 role = data.role,
-                createdBy = UUID.fromString(adminId),
+                createdBy = adminId,
             )
         return userRepository.save(createdUser).toReadResponse()
     }
@@ -49,8 +52,10 @@ class UserService(
     fun updateUserById(
         userId: UUID,
         data: UserPutBody,
+        caller: UserPrincipal,
     ): UserReadResponse {
         val user = getUserByUserId(userId)
+        ensureCanChangeRoleAndActiveState(user, data, caller)
         val updatedUser =
             userRepository.save(
                 user.copy(
@@ -74,6 +79,20 @@ class UserService(
 
     private fun ensureEmailAvailable(email: String) {
         if (userRepository.findByEmail(email) != null) throw userAlreadyExists(email)
+    }
+
+    private fun ensureCanChangeRoleAndActiveState(
+        user: User,
+        data: UserPutBody,
+        caller: UserPrincipal,
+    ) {
+        if (caller.role == UserRole.ADMIN) return
+        if (data.role != user.role) {
+            throw AccessDeniedException("Only ADMIN can change role.")
+        }
+        if (data.isActive != user.isActive) {
+            throw AccessDeniedException("Only ADMIN can change isActive.")
+        }
     }
 
     private fun getUserByUserId(userId: UUID): User =

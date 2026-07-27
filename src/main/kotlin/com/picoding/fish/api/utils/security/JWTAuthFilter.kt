@@ -42,8 +42,9 @@ class JWTAuthFilter(
                         throw userInactive()
                     }
 
+                    val principal = UserPrincipal(id = user.id!!, role = user.role)
                     val authorities = listOf(SimpleGrantedAuthority("ROLE_${user.role}"))
-                    val auth = UsernamePasswordAuthenticationToken(userId, null, authorities)
+                    val auth = UsernamePasswordAuthenticationToken(principal, null, authorities)
                     SecurityContextHolder.getContext().authentication = auth
                 }
             }
