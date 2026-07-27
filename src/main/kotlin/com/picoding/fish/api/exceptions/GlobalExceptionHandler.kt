@@ -5,11 +5,9 @@ import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.AccessDeniedException
-import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.web.bind.MissingRequestCookieException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
-import org.springframework.web.server.ResponseStatusException
 import java.time.Instant
 import java.util.UUID
 
@@ -20,57 +18,28 @@ class GlobalExceptionHandler(
     @ExceptionHandler(AppException::class)
     fun handleAppException(ex: AppException): ResponseEntity<ApiError> = ResponseEntity(ex.toApiError(request.requestURI), ex.status)
 
-    // for auth
-    @ExceptionHandler(BadCredentialsException::class)
-    fun handleBadCredentials(ex: BadCredentialsException): ResponseEntity<ApiError> =
-        ResponseEntity(
-            ApiError(
-                code = "INVALID_CREDENTIALS",
-                message = ex.message ?: "Invalid credentials.",
-                traceId = UUID.randomUUID().toString(),
-                timestamp = Instant.now().toString(),
-                path = request.requestURI,
-            ),
-            HttpStatus.UNAUTHORIZED,
-        )
-
     @ExceptionHandler(MissingRequestCookieException::class)
     fun handleMissingCookie(ex: MissingRequestCookieException): ResponseEntity<ApiError> =
         ResponseEntity(
-            ApiError(
-                code = "UNAUTHORIZED",
-                message = "Required cookie '${ex.cookieName}' is missing.",
-                traceId = UUID.randomUUID().toString(),
-                timestamp = Instant.now().toString(),
-                path = request.requestURI,
-            ),
+            error("UNAUTHORIZED", "Required cookie '${ex.cookieName}' is missing."),
             HttpStatus.UNAUTHORIZED,
         )
 
-    @ExceptionHandler(ResponseStatusException::class)
-    fun handleResponseStatus(ex: ResponseStatusException): ResponseEntity<ApiError> =
-        ResponseEntity(
-            ApiError(
-                code = "UNAUTHORIZED",
-                message = ex.reason ?: "The token is missing or invalid.",
-                traceId = UUID.randomUUID().toString(),
-                timestamp = Instant.now().toString(),
-                path = request.requestURI,
-            ),
-            ex.statusCode,
-        )
-
-    // invalid role
     @ExceptionHandler(AccessDeniedException::class)
     fun handleAccessDenied(): ResponseEntity<ApiError> =
         ResponseEntity(
-            ApiError(
-                code = "FORBIDDEN",
-                message = "Insufficient rights to perform the operation.",
-                traceId = UUID.randomUUID().toString(),
-                timestamp = Instant.now().toString(),
-                path = request.requestURI,
-            ),
+            error("FORBIDDEN", "Insufficient rights to perform the operation."),
             HttpStatus.FORBIDDEN,
         )
+
+    private fun error(
+        code: String,
+        message: String,
+    ) = ApiError(
+        code = code,
+        message = message,
+        traceId = UUID.randomUUID().toString(),
+        timestamp = Instant.now().toString(),
+        path = request.requestURI,
+    )
 }

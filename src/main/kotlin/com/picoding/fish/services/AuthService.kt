@@ -1,5 +1,6 @@
 package com.picoding.fish.services
 
+import com.picoding.fish.api.exceptions.invalidCredentials
 import com.picoding.fish.api.exceptions.userAlreadyExists
 import com.picoding.fish.api.exceptions.userInactive
 import com.picoding.fish.core.Settings
@@ -14,11 +15,8 @@ import com.picoding.fish.database.models.RefreshToken
 import com.picoding.fish.database.models.User
 import com.picoding.fish.database.repositories.RefreshTokenRepository
 import com.picoding.fish.database.repositories.UserRepository
-import org.springframework.http.HttpStatusCode
-import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.server.ResponseStatusException
 import java.security.MessageDigest
 import java.time.Instant
 import java.util.Base64
@@ -55,10 +53,10 @@ class AuthService(
         val (email, password) = data
         val user =
             userRepository.findByEmail(email)
-                ?: throw BadCredentialsException("User not found.")
+                ?: throw invalidCredentials()
 
         if (!hashEncoder.matches(password, user.password)) {
-            throw BadCredentialsException("Invalid password.")
+            throw invalidCredentials()
         }
         isUserActive(user)
 
@@ -75,19 +73,19 @@ class AuthService(
     @Transactional
     fun refresh(refreshToken: String): Pair<TokenPair, AccessTokenResponse> {
         if (!jwtService.validateRefreshToken(refreshToken)) {
-            throw ResponseStatusException(HttpStatusCode.valueOf(401), "Invalid refresh token.")
+            throw invalidCredentials(message = "Invalid or expired refresh token.")
         }
 
         val userId = jwtService.getUserIdFromToken(refreshToken)
         val user =
             userRepository.findById(UUID.fromString(userId)).orElseThrow {
-                ResponseStatusException(HttpStatusCode.valueOf(401), "Invalid refresh token.")
+                invalidCredentials("Invalid or expired refresh token.")
             }
         isUserActive(user)
 
         val hashed = hashToken(refreshToken)
         refreshTokenRepo.findByuserIdAndHashedToken(user.id!!, hashed)
-            ?: throw ResponseStatusException(HttpStatusCode.valueOf(401), "Refresh token not recognized.")
+            ?: throw invalidCredentials("Refresh token not recognized.")
 
         refreshTokenRepo.deleteByuserIdAndHashedToken(user.id, hashed)
 

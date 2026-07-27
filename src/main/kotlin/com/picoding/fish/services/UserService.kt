@@ -11,16 +11,19 @@ import com.picoding.fish.core.schemas.user.UserRole
 import com.picoding.fish.core.utils.HashEncoder
 import com.picoding.fish.core.utils.PageResponse
 import com.picoding.fish.database.models.User
+import com.picoding.fish.database.repositories.RefreshTokenRepository
 import com.picoding.fish.database.repositories.UserRepository
 import org.springframework.data.domain.PageRequest
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.util.UUID
 
 @Service
 class UserService(
     private val userRepository: UserRepository,
+    private val refreshTokenRepository: RefreshTokenRepository,
     private val hashEncoder: HashEncoder,
 ) {
     fun createUser(
@@ -49,6 +52,7 @@ class UserService(
 
     fun getUserById(userId: UUID): UserReadResponse = getUserByUserId(userId).toReadResponse()
 
+    @Transactional
     fun updateUserById(
         userId: UUID,
         data: UserPutBody,
@@ -65,16 +69,30 @@ class UserService(
                     updatedAt = Instant.now(),
                 ),
             )
+        revokeSessionsIfJustDeactivated(user, updatedUser)
         return updatedUser.toReadResponse()
     }
 
+    @Transactional
     fun deleteUserById(userId: UUID) {
         val user = getUserByUserId(userId)
-        userRepository.save(
-            user.copy(
-                isActive = false,
-            ),
-        )
+        val deactivatedUser =
+            userRepository.save(
+                user.copy(
+                    isActive = false,
+                    updatedAt = Instant.now(),
+                ),
+            )
+        revokeSessionsIfJustDeactivated(user, deactivatedUser)
+    }
+
+    private fun revokeSessionsIfJustDeactivated(
+        before: User,
+        after: User,
+    ) {
+        if (before.isActive && !after.isActive) {
+            refreshTokenRepository.deleteByUserId(after.id!!)
+        }
     }
 
     private fun ensureEmailAvailable(email: String) {

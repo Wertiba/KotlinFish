@@ -20,4 +20,8 @@ interface RefreshTokenRepository : JpaRepository<RefreshToken, UUID> {
     @Modifying
     @Transactional
     fun deleteByHashedToken(hashedToken: String)
+
+    @Modifying
+    @Transactional
+    fun deleteByUserId(userId: UUID)
 }

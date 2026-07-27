@@ -1,12 +1,11 @@
 package com.picoding.fish.services
 
+import com.picoding.fish.api.exceptions.invalidCredentials
 import com.picoding.fish.core.Settings
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
-import org.springframework.http.HttpStatusCode
 import org.springframework.stereotype.Service
-import org.springframework.web.server.ResponseStatusException
 import java.util.Base64
 import java.util.Date
 
@@ -71,7 +70,7 @@ class JWTService(
     fun validateRefreshToken(token: String): Boolean = validateToken(token, "refresh")
 
     fun getUserIdFromToken(token: String): String {
-        val claims = parseAllClaims(token) ?: throw ResponseStatusException(HttpStatusCode.valueOf(401), "Invalid token.")
+        val claims = parseAllClaims(token) ?: throw invalidCredentials("Invalid or expired token.")
         return claims.subject
     }
 }
