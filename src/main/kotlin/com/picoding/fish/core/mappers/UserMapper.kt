@@ -12,8 +12,8 @@ fun User.toReadResponse() =
         fullName = fullName,
         role = role,
         isActive = isActive,
-        createdAt = createdAt,
-        updatedAt = updatedAt,
+        createdAt = createdAt!!,
+        updatedAt = updatedAt!!,
         createdBy = createdBy!!,
     )
 

@@ -87,17 +87,18 @@ class AuthService(
         refreshTokenRepo.findByuserIdAndHashedToken(user.id!!, hashed)
             ?: throw invalidCredentials("Refresh token not recognized.")
 
-        refreshTokenRepo.deleteByuserIdAndHashedToken(user.id, hashed)
+        refreshTokenRepo.deleteByuserIdAndHashedToken(user.id!!, hashed)
 
         val tokenPair = generateTokenPair(user)
         return tokenPair to AccessTokenResponse(tokenPair.accessToken, settings.security.accessTokenExpiration.seconds)
     }
 
     private fun generateTokenPair(user: User): TokenPair {
-        val newAccessToken = jwtService.generateAccessToken(user.id!!.toString())
-        val newRefreshToken = jwtService.generateRefreshToken(user.id.toString())
+        val userId = user.id!!
+        val newAccessToken = jwtService.generateAccessToken(userId.toString())
+        val newRefreshToken = jwtService.generateRefreshToken(userId.toString())
 
-        storeRefreshToken(user.id, newRefreshToken)
+        storeRefreshToken(userId, newRefreshToken)
 
         return TokenPair(
             accessToken = newAccessToken,

@@ -17,7 +17,6 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.Instant
 import java.util.UUID
 
 @Service
@@ -60,38 +59,33 @@ class UserService(
     ): UserReadResponse {
         val user = getUserByUserId(userId)
         ensureCanChangeRoleAndActiveState(user, data, caller)
-        val updatedUser =
-            userRepository.save(
-                user.copy(
-                    fullName = data.fullName,
-                    role = data.role,
-                    isActive = data.isActive,
-                    updatedAt = Instant.now(),
-                ),
-            )
-        revokeSessionsIfJustDeactivated(user, updatedUser)
+        val wasActive = user.isActive
+
+        user.fullName = data.fullName
+        user.role = data.role
+        user.isActive = data.isActive
+        val updatedUser = userRepository.save(user)
+
+        revokeSessionsIfJustDeactivated(updatedUser, wasActive)
         return updatedUser.toReadResponse()
     }
 
     @Transactional
     fun deleteUserById(userId: UUID) {
         val user = getUserByUserId(userId)
-        val deactivatedUser =
-            userRepository.save(
-                user.copy(
-                    isActive = false,
-                    updatedAt = Instant.now(),
-                ),
-            )
-        revokeSessionsIfJustDeactivated(user, deactivatedUser)
+        val wasActive = user.isActive
+
+        user.isActive = false
+        val deactivatedUser = userRepository.save(user)
+        revokeSessionsIfJustDeactivated(deactivatedUser, wasActive)
     }
 
     private fun revokeSessionsIfJustDeactivated(
-        before: User,
-        after: User,
+        user: User,
+        wasActive: Boolean,
     ) {
-        if (before.isActive && !after.isActive) {
-            refreshTokenRepository.deleteByUserId(after.id!!)
+        if (wasActive && !user.isActive) {
+            refreshTokenRepository.deleteByUserId(user.id!!)
         }
     }
 
