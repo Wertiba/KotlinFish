@@ -57,6 +57,15 @@ data class UserAndAccessTokenResponse(
     val user: UserReadResponse,
 )
 
+data class UserFilterQuery(
+    val email: String? = null,
+    val fullName: String? = null,
+    val role: UserRole? = null,
+    val isActive: Boolean? = null,
+    val createdFrom: Instant? = null,
+    val createdTo: Instant? = null,
+)
+
 enum class UserRole {
     USER,
     ADMIN,

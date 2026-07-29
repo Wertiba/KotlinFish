@@ -2,6 +2,7 @@ package com.picoding.fish.api.controllers
 
 import com.picoding.fish.api.utils.security.UserPrincipal
 import com.picoding.fish.core.schemas.user.AdminRegisterUserBody
+import com.picoding.fish.core.schemas.user.UserFilterQuery
 import com.picoding.fish.core.schemas.user.UserPutBody
 import com.picoding.fish.core.schemas.user.UserReadResponse
 import com.picoding.fish.core.utils.PageResponse
@@ -17,6 +18,7 @@ import org.springframework.security.core.parameters.P
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -39,7 +41,8 @@ class UserController(
     fun getAllUsers(
         @RequestParam(defaultValue = "0") @Min(0, message = "page must be >= 0.") page: Int,
         @RequestParam(defaultValue = "20") @Min(1, message = "size must be >= 1.") @Max(100, message = "size must be <= 100.") size: Int,
-    ): PageResponse<UserReadResponse> = userService.getAllUsers(page, size)
+        @ModelAttribute filter: UserFilterQuery,
+    ): PageResponse<UserReadResponse> = userService.getAllUsers(filter, page, size)
 
     @PostMapping("")
     @PreAuthorize("hasRole('ADMIN')")
