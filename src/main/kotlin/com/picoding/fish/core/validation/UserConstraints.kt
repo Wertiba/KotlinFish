@@ -22,7 +22,7 @@ annotation class ValidEmail(
 @Retention(AnnotationRetention.RUNTIME)
 @Constraint(validatedBy = [])
 @Pattern(
-    regexp = "^(?=.*[A-Za-z])(?=.*\\d).+.{8,72}$",
+    regexp = "^(?=.*[A-Za-z])(?=.*\\d).{8,72}\$",
     message = "Password must be between 8 and 72 characters long and contain at least one digit, uppercase and lowercase character.",
 )
 annotation class ValidPassword(
