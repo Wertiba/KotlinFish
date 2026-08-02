@@ -10,6 +10,8 @@ services:
       - "8080:8080"
     env_file:
       - .env
+    volumes:
+      - applogs:/app/logs
     depends_on:
       db:
         condition: service_healthy
@@ -39,3 +41,4 @@ services:
 
 volumes:
   pgdata: {}
+  applogs: {}

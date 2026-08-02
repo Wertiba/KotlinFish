@@ -1,5 +1,6 @@
 package com.picoding.fish.api.exceptions
 
+import com.picoding.fish.core.utils.TraceId
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.ConstraintViolationException
 import org.springframework.http.HttpStatus
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import java.time.Instant
-import java.util.UUID
 
 @RestControllerAdvice
 class GlobalValidationHandler(
@@ -73,7 +73,7 @@ class GlobalValidationHandler(
     ) = ApiError(
         code = "VALIDATION_FAILED",
         message = message,
-        traceId = UUID.randomUUID().toString(),
+        traceId = TraceId.current(),
         timestamp = Instant.now().toString(),
         path = request.requestURI,
         fieldErrors = fieldErrors,
