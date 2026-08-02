@@ -15,6 +15,7 @@ import com.picoding.fish.database.models.User
 import com.picoding.fish.database.repositories.RefreshTokenRepository
 import com.picoding.fish.database.repositories.UserRepository
 import com.picoding.fish.database.repositories.toSpecification
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.security.access.AccessDeniedException
@@ -32,7 +33,6 @@ class UserService(
         data: AdminRegisterUserBody,
         adminId: UUID,
     ): UserReadResponse {
-        ensureEmailAvailable(data.email)
         val createdUser =
             User(
                 email = data.email,
@@ -41,7 +41,11 @@ class UserService(
                 role = data.role,
                 createdBy = adminId,
             )
-        return userRepository.save(createdUser).toReadResponse()
+        return try {
+            userRepository.save(createdUser).toReadResponse()
+        } catch (_: DataIntegrityViolationException) {
+            throw userAlreadyExists(data.email)
+        }
     }
 
     fun getAllUsers(
@@ -96,10 +100,6 @@ class UserService(
         if (wasActive && !user.isActive) {
             refreshTokenRepository.deleteByUserId(user.id!!)
         }
-    }
-
-    private fun ensureEmailAvailable(email: String) {
-        if (userRepository.findByEmail(email) != null) throw userAlreadyExists(email)
     }
 
     private fun ensureCanChangeRoleAndActiveState(

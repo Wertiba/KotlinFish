@@ -15,6 +15,7 @@ import com.picoding.fish.database.models.RefreshToken
 import com.picoding.fish.database.models.User
 import com.picoding.fish.database.repositories.RefreshTokenRepository
 import com.picoding.fish.database.repositories.UserRepository
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.security.MessageDigest
@@ -33,18 +34,18 @@ class AuthService(
     @Transactional
     fun register(data: UserRegisterBody): Pair<String, UserAndAccessTokenResponse> {
         val (email, password, fullName) = data
-        var user = userRepository.findByEmail(email.trim())
-        if (user != null) {
+        val user =
+            User(
+                email = email,
+                password = hashEncoder.encode(password),
+                fullName = fullName,
+            )
+        try {
+            userRepository.save(user)
+        } catch (_: DataIntegrityViolationException) {
             throw userAlreadyExists(email)
         }
-        user =
-            userRepository.save(
-                User(
-                    email = email,
-                    password = hashEncoder.encode(password),
-                    fullName = fullName,
-                ),
-            )
+
         val tokenPair = generateTokenPair(user)
         return tokenPair.refreshToken to user.toTokenResponse(tokenPair.accessToken, settings.security.accessTokenExpiration.seconds)
     }
