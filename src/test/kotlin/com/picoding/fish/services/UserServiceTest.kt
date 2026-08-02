@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.jpa.domain.Specification
@@ -41,10 +42,9 @@ class UserServiceTest {
     @Test
     fun `createUser saves a new user attributed to the calling admin`() {
         val adminId = UUID.randomUUID()
-        every { userRepository.findByEmail("new@example.com") } returns null
         every { hashEncoder.encode("Password123") } returns "hashed-password"
         val savedSlot = slot<User>()
-        every { userRepository.save(capture(savedSlot)) } answers { savedSlot.captured.persisted() }
+        every { userRepository.saveAndFlush(capture(savedSlot)) } answers { savedSlot.captured.persisted() }
 
         val result =
             userService.createUser(
@@ -59,7 +59,8 @@ class UserServiceTest {
 
     @Test
     fun `createUser fails when the email is already taken`() {
-        every { userRepository.findByEmail("new@example.com") } returns User("new@example.com", "hash", "Someone").persisted()
+        every { hashEncoder.encode("Password123") } returns "hashed-password"
+        every { userRepository.saveAndFlush(any()) } throws DataIntegrityViolationException("duplicate key")
 
         val ex =
             assertThrows(AppException::class.java) {
@@ -70,7 +71,6 @@ class UserServiceTest {
             }
 
         assertEquals("EMAIL_ALREADY_EXISTS", ex.code)
-        verify(exactly = 0) { userRepository.save(any()) }
     }
 
     @Test

@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpStatus
 import java.security.MessageDigest
 import java.time.Duration
@@ -56,10 +57,9 @@ class AuthServiceTest {
 
     @Test
     fun `register creates a new user and returns a token pair`() {
-        every { userRepository.findByEmail("john@example.com") } returns null
         every { hashEncoder.encode("Password123") } returns "hashed-password"
         val savedSlot = slot<User>()
-        every { userRepository.save(capture(savedSlot)) } answers { savedSlot.captured.persisted() }
+        every { userRepository.saveAndFlush(capture(savedSlot)) } answers { savedSlot.captured.persisted() }
         every { jwtService.generateAccessToken(any()) } returns "access-token"
         every { jwtService.generateRefreshToken(any()) } returns "refresh-token"
 
@@ -76,7 +76,8 @@ class AuthServiceTest {
 
     @Test
     fun `register fails when the email is already taken`() {
-        every { userRepository.findByEmail("john@example.com") } returns User("john@example.com", "hash", "John").persisted()
+        every { hashEncoder.encode("Password123") } returns "hashed-password"
+        every { userRepository.saveAndFlush(any()) } throws DataIntegrityViolationException("duplicate key")
 
         val ex =
             assertThrows(AppException::class.java) {
@@ -85,7 +86,6 @@ class AuthServiceTest {
 
         assertEquals("EMAIL_ALREADY_EXISTS", ex.code)
         assertEquals(HttpStatus.CONFLICT, ex.status)
-        verify(exactly = 0) { userRepository.save(any()) }
     }
 
     @Test

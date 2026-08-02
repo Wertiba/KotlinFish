@@ -41,7 +41,7 @@ class AuthService(
                 fullName = fullName,
             )
         try {
-            userRepository.save(user)
+            userRepository.saveAndFlush(user)
         } catch (_: DataIntegrityViolationException) {
             throw userAlreadyExists(email)
         }

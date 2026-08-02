@@ -42,7 +42,7 @@ class UserService(
                 createdBy = adminId,
             )
         return try {
-            userRepository.save(createdUser).toReadResponse()
+            userRepository.saveAndFlush(createdUser).toReadResponse()
         } catch (_: DataIntegrityViolationException) {
             throw userAlreadyExists(data.email)
         }

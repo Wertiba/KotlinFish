@@ -6,6 +6,7 @@ import com.picoding.fish.core.dto.user.UserRegisterBody
 import com.picoding.fish.support.IntegrationTest
 import jakarta.servlet.http.Cookie
 import org.hamcrest.Matchers.greaterThan
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection
@@ -74,9 +75,16 @@ class AuthControllerIT : IntegrationTest() {
         val email = uniqueEmail()
         register(email = email)
 
-        registerRaw(email = email)
-            .andExpect(status().isConflict)
-            .andExpect(jsonPath("$.code").value("EMAIL_ALREADY_EXISTS"))
+        val result =
+            registerRaw(email = email)
+                .andExpect(status().isConflict)
+                .andExpect(jsonPath("$.code").value("EMAIL_ALREADY_EXISTS"))
+                .andReturn()
+
+        val traceIdHeader = result.response.getHeader("X-Trace-Id")
+        val traceIdBody = objectMapper.readTree(result.response.contentAsString).get("traceId").asString()
+        assertNotNull(traceIdHeader)
+        assertEquals(traceIdHeader, traceIdBody)
     }
 
     @Test
