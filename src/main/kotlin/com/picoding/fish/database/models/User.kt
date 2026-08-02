@@ -2,6 +2,8 @@ package com.picoding.fish.database.models
 
 import com.picoding.fish.core.schemas.user.UserRole
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.PrePersist
 import jakarta.persistence.Table
 import java.util.UUID
@@ -12,7 +14,7 @@ class User(
     var email: String,
     var password: String,
     var fullName: String,
-    var role: UserRole = UserRole.USER,
+    @Enumerated(EnumType.STRING) var role: UserRole = UserRole.USER,
     var isActive: Boolean = true,
     var createdBy: UUID? = null,
 ) : AuditableEntity() {

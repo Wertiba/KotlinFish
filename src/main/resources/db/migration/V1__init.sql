@@ -4,7 +4,7 @@ CREATE TABLE users
     email      VARCHAR(255)              NOT NULL UNIQUE,
     password   VARCHAR(255)              NOT NULL,
     full_name  VARCHAR(255)              NOT NULL,
-    role       SMALLINT                  NOT NULL CHECK (role BETWEEN 0 AND 1),
+    role       VARCHAR(20)               NOT NULL CHECK (role IN ('USER', 'ADMIN')),
     is_active  BOOLEAN                   NOT NULL DEFAULT TRUE,
     created_by UUID,
     created_at TIMESTAMP(6) WITH TIME ZONE NOT NULL,
