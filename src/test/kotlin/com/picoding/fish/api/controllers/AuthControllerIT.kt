@@ -1,8 +1,8 @@
 package com.picoding.fish.api.controllers
 
-import com.picoding.fish.core.schemas.user.UserAndAccessTokenResponse
-import com.picoding.fish.core.schemas.user.UserLoginBody
-import com.picoding.fish.core.schemas.user.UserRegisterBody
+import com.picoding.fish.core.dto.user.UserAndAccessTokenResponse
+import com.picoding.fish.core.dto.user.UserLoginBody
+import com.picoding.fish.core.dto.user.UserRegisterBody
 import com.picoding.fish.support.IntegrationTest
 import jakarta.servlet.http.Cookie
 import org.hamcrest.Matchers.greaterThan
@@ -14,8 +14,8 @@ import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
+import org.testcontainers.postgresql.PostgreSQLContainer
 import java.util.UUID
 
 class AuthControllerIT : IntegrationTest() {
@@ -25,7 +25,7 @@ class AuthControllerIT : IntegrationTest() {
         @Container
         @ServiceConnection
         @JvmStatic
-        val postgres: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16-alpine")
+        val postgres: PostgreSQLContainer = PostgreSQLContainer("postgres:16-alpine")
     }
 
     private fun registerRaw(
@@ -82,7 +82,7 @@ class AuthControllerIT : IntegrationTest() {
     @Test
     fun `register rejects an invalid payload`() {
         registerRaw(email = "not-an-email", password = "short", fullName = "A")
-            .andExpect(status().isUnprocessableEntity)
+            .andExpect(status().isUnprocessableContent)
             .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
             .andExpect(jsonPath("$.fieldErrors.length()", greaterThan(2)))
     }

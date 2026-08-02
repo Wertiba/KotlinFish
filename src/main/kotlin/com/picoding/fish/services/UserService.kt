@@ -3,12 +3,12 @@ package com.picoding.fish.services
 import com.picoding.fish.api.exceptions.userAlreadyExists
 import com.picoding.fish.api.exceptions.userNotFound
 import com.picoding.fish.api.utils.security.UserPrincipal
+import com.picoding.fish.core.dto.user.AdminRegisterUserBody
+import com.picoding.fish.core.dto.user.UserFilterQuery
+import com.picoding.fish.core.dto.user.UserPutBody
+import com.picoding.fish.core.dto.user.UserReadResponse
+import com.picoding.fish.core.dto.user.UserRole
 import com.picoding.fish.core.mappers.toReadResponse
-import com.picoding.fish.core.schemas.user.AdminRegisterUserBody
-import com.picoding.fish.core.schemas.user.UserFilterQuery
-import com.picoding.fish.core.schemas.user.UserPutBody
-import com.picoding.fish.core.schemas.user.UserReadResponse
-import com.picoding.fish.core.schemas.user.UserRole
 import com.picoding.fish.core.utils.HashEncoder
 import com.picoding.fish.core.utils.PageResponse
 import com.picoding.fish.database.models.User

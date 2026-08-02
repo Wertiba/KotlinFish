@@ -4,12 +4,12 @@ import com.picoding.fish.api.exceptions.invalidCredentials
 import com.picoding.fish.api.exceptions.userAlreadyExists
 import com.picoding.fish.api.exceptions.userInactive
 import com.picoding.fish.core.Settings
+import com.picoding.fish.core.dto.token.AccessTokenResponse
+import com.picoding.fish.core.dto.token.TokenPair
+import com.picoding.fish.core.dto.user.UserAndAccessTokenResponse
+import com.picoding.fish.core.dto.user.UserLoginBody
+import com.picoding.fish.core.dto.user.UserRegisterBody
 import com.picoding.fish.core.mappers.toTokenResponse
-import com.picoding.fish.core.schemas.token.AccessTokenResponse
-import com.picoding.fish.core.schemas.token.TokenPair
-import com.picoding.fish.core.schemas.user.UserAndAccessTokenResponse
-import com.picoding.fish.core.schemas.user.UserLoginBody
-import com.picoding.fish.core.schemas.user.UserRegisterBody
 import com.picoding.fish.core.utils.HashEncoder
 import com.picoding.fish.database.models.RefreshToken
 import com.picoding.fish.database.models.User

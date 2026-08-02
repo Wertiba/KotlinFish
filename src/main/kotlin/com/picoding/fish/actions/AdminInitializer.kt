@@ -1,7 +1,7 @@
 package com.picoding.fish.actions
 
 import com.picoding.fish.core.Settings
-import com.picoding.fish.core.schemas.user.UserRole
+import com.picoding.fish.core.dto.user.UserRole
 import com.picoding.fish.core.utils.HashEncoder
 import com.picoding.fish.database.models.User
 import com.picoding.fish.database.repositories.UserRepository

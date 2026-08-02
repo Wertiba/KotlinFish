@@ -1,6 +1,6 @@
 package com.picoding.fish.database.models
 
-import com.picoding.fish.core.schemas.user.UserRole
+import com.picoding.fish.core.dto.user.UserRole
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated

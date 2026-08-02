@@ -2,10 +2,10 @@ package com.picoding.fish.services
 
 import com.picoding.fish.api.exceptions.AppException
 import com.picoding.fish.api.utils.security.UserPrincipal
-import com.picoding.fish.core.schemas.user.AdminRegisterUserBody
-import com.picoding.fish.core.schemas.user.UserFilterQuery
-import com.picoding.fish.core.schemas.user.UserPutBody
-import com.picoding.fish.core.schemas.user.UserRole
+import com.picoding.fish.core.dto.user.AdminRegisterUserBody
+import com.picoding.fish.core.dto.user.UserFilterQuery
+import com.picoding.fish.core.dto.user.UserPutBody
+import com.picoding.fish.core.dto.user.UserRole
 import com.picoding.fish.core.utils.HashEncoder
 import com.picoding.fish.database.models.User
 import com.picoding.fish.database.repositories.RefreshTokenRepository

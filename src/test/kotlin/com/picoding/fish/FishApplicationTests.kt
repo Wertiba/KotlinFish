@@ -3,8 +3,8 @@ package com.picoding.fish
 import com.picoding.fish.support.IntegrationTest
 import org.junit.jupiter.api.Test
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection
-import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
+import org.testcontainers.postgresql.PostgreSQLContainer
 
 class FishApplicationTests : IntegrationTest() {
     @Test
@@ -15,6 +15,6 @@ class FishApplicationTests : IntegrationTest() {
         @Container
         @ServiceConnection
         @JvmStatic
-        val postgres: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16-alpine")
+        val postgres: PostgreSQLContainer = PostgreSQLContainer("postgres:16-alpine")
     }
 }

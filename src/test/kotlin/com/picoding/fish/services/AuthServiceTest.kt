@@ -2,8 +2,8 @@ package com.picoding.fish.services
 
 import com.picoding.fish.api.exceptions.AppException
 import com.picoding.fish.core.Settings
-import com.picoding.fish.core.schemas.user.UserLoginBody
-import com.picoding.fish.core.schemas.user.UserRegisterBody
+import com.picoding.fish.core.dto.user.UserLoginBody
+import com.picoding.fish.core.dto.user.UserRegisterBody
 import com.picoding.fish.core.utils.HashEncoder
 import com.picoding.fish.database.models.User
 import com.picoding.fish.database.repositories.RefreshTokenRepository

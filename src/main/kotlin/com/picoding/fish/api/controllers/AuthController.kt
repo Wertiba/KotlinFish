@@ -1,10 +1,10 @@
 package com.picoding.fish.api.controllers
 
 import com.picoding.fish.api.utils.cookie.CookieHelper
-import com.picoding.fish.core.schemas.token.AccessTokenResponse
-import com.picoding.fish.core.schemas.user.UserAndAccessTokenResponse
-import com.picoding.fish.core.schemas.user.UserLoginBody
-import com.picoding.fish.core.schemas.user.UserRegisterBody
+import com.picoding.fish.core.dto.token.AccessTokenResponse
+import com.picoding.fish.core.dto.user.UserAndAccessTokenResponse
+import com.picoding.fish.core.dto.user.UserLoginBody
+import com.picoding.fish.core.dto.user.UserRegisterBody
 import com.picoding.fish.services.AuthService
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid

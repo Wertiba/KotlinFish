@@ -1,4 +1,4 @@
-package com.picoding.fish.core.schemas.token
+package com.picoding.fish.core.dto.token
 
 data class TokenPair(
     val accessToken: String,

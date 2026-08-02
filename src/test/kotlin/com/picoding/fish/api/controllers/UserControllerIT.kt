@@ -1,11 +1,11 @@
 package com.picoding.fish.api.controllers
 
-import com.picoding.fish.core.schemas.user.AdminRegisterUserBody
-import com.picoding.fish.core.schemas.user.UserAndAccessTokenResponse
-import com.picoding.fish.core.schemas.user.UserLoginBody
-import com.picoding.fish.core.schemas.user.UserPutBody
-import com.picoding.fish.core.schemas.user.UserRegisterBody
-import com.picoding.fish.core.schemas.user.UserRole
+import com.picoding.fish.core.dto.user.AdminRegisterUserBody
+import com.picoding.fish.core.dto.user.UserAndAccessTokenResponse
+import com.picoding.fish.core.dto.user.UserLoginBody
+import com.picoding.fish.core.dto.user.UserPutBody
+import com.picoding.fish.core.dto.user.UserRegisterBody
+import com.picoding.fish.core.dto.user.UserRole
 import com.picoding.fish.support.IntegrationTest
 import org.hamcrest.Matchers.greaterThanOrEqualTo
 import org.junit.jupiter.api.BeforeEach
@@ -19,8 +19,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
+import org.testcontainers.postgresql.PostgreSQLContainer
 import java.util.UUID
 
 class UserControllerIT : IntegrationTest() {
@@ -30,7 +30,7 @@ class UserControllerIT : IntegrationTest() {
         @Container
         @ServiceConnection
         @JvmStatic
-        val postgres: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16-alpine")
+        val postgres: PostgreSQLContainer = PostgreSQLContainer("postgres:16-alpine")
     }
 
     @BeforeEach

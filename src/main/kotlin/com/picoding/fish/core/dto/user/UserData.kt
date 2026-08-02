@@ -1,4 +1,4 @@
-package com.picoding.fish.core.schemas.user
+package com.picoding.fish.core.dto.user
 
 import com.picoding.fish.core.validation.ValidEmail
 import com.picoding.fish.core.validation.ValidFullName

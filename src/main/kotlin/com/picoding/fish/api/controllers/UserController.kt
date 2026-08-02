@@ -1,10 +1,10 @@
 package com.picoding.fish.api.controllers
 
 import com.picoding.fish.api.utils.security.UserPrincipal
-import com.picoding.fish.core.schemas.user.AdminRegisterUserBody
-import com.picoding.fish.core.schemas.user.UserFilterQuery
-import com.picoding.fish.core.schemas.user.UserPutBody
-import com.picoding.fish.core.schemas.user.UserReadResponse
+import com.picoding.fish.core.dto.user.AdminRegisterUserBody
+import com.picoding.fish.core.dto.user.UserFilterQuery
+import com.picoding.fish.core.dto.user.UserPutBody
+import com.picoding.fish.core.dto.user.UserReadResponse
 import com.picoding.fish.core.utils.PageResponse
 import com.picoding.fish.services.UserService
 import io.swagger.v3.oas.annotations.tags.Tag

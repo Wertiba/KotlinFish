@@ -1,6 +1,6 @@
 package com.picoding.fish.database.repositories
 
-import com.picoding.fish.core.schemas.user.UserFilterQuery
+import com.picoding.fish.core.dto.user.UserFilterQuery
 import com.picoding.fish.core.specification.combineFilters
 import com.picoding.fish.core.specification.whereAfterOrEqual
 import com.picoding.fish.core.specification.whereBeforeOrEqual
