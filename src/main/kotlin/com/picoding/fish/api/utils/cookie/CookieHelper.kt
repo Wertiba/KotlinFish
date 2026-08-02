@@ -1,11 +1,14 @@
 package com.picoding.fish.api.utils.cookie
 
+import com.picoding.fish.core.Settings
 import org.springframework.http.ResponseCookie
 import org.springframework.stereotype.Component
 import java.time.Duration
 
 @Component
-class CookieHelper {
+class CookieHelper(
+    private val settings: Settings,
+) {
     fun getCookie(
         token: String,
         secure: Boolean = true,
@@ -15,7 +18,7 @@ class CookieHelper {
             .httpOnly(true)
             .secure(secure)
             .path("/")
-            .maxAge(Duration.ofDays(7))
+            .maxAge(Duration.ofDays(settings.security.refreshTokenExpiration.toDays()))
             .sameSite("Lax")
             .build()
 
