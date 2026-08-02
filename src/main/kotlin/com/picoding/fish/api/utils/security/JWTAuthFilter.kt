@@ -1,6 +1,7 @@
 package com.picoding.fish.api.utils.security
 
 import com.picoding.fish.api.exceptions.AppException
+import com.picoding.fish.api.exceptions.invalidCredentials
 import com.picoding.fish.api.exceptions.userInactive
 import com.picoding.fish.api.exceptions.userNotFound
 import com.picoding.fish.database.repositories.UserRepository
@@ -50,6 +51,9 @@ class JWTAuthFilter(
             }
         } catch (ex: AppException) {
             exceptionResolver.resolveException(request, response, null, ex)
+            return
+        } catch (_: IllegalArgumentException) {
+            exceptionResolver.resolveException(request, response, null, invalidCredentials("Invalid or expired token."))
             return
         }
 

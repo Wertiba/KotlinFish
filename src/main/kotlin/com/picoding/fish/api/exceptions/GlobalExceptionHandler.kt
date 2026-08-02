@@ -2,6 +2,7 @@ package com.picoding.fish.api.exceptions
 
 import com.picoding.fish.core.mappers.toApiError
 import jakarta.servlet.http.HttpServletRequest
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.AccessDeniedException
@@ -32,6 +33,15 @@ class GlobalExceptionHandler(
             HttpStatus.FORBIDDEN,
         )
 
+    @ExceptionHandler(Exception::class)
+    fun handleUnexpected(ex: Exception): ResponseEntity<ApiError> {
+        logger.error("Unhandled exception on {}", request.requestURI, ex)
+        return ResponseEntity(
+            error("INTERNAL_ERROR", "An unexpected error occurred."),
+            HttpStatus.INTERNAL_SERVER_ERROR,
+        )
+    }
+
     private fun error(
         code: String,
         message: String,
@@ -42,4 +52,8 @@ class GlobalExceptionHandler(
         timestamp = Instant.now().toString(),
         path = request.requestURI,
     )
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
+    }
 }
