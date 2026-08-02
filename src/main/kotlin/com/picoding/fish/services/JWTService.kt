@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.Keys
 import org.springframework.stereotype.Service
 import java.util.Base64
 import java.util.Date
+import java.util.UUID
 
 @Service
 class JWTService(
@@ -44,6 +45,7 @@ class JWTService(
 
         return Jwts
             .builder()
+            .id(UUID.randomUUID().toString())
             .subject(userId)
             .claim("type", type)
             .issuedAt(now)

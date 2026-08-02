@@ -1,0 +1,7 @@
+app:
+  security:
+    jwt-secret: "dGVzdHNlY3JldGtleWZvcnRlc3RpbmdwdXJwb3Nlc29ubHkxMjM0NQ=="
+  admin:
+    email: admin@test.local
+    password: TestAdmin123
+    fullname: Test Admin
