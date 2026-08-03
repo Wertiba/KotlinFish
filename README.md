@@ -69,8 +69,7 @@ together in a Kotlin project.
 ├── docker-compose.yml            App + Postgres for local/full-stack runs
 ├── .env                          Local secrets/config for docker-compose (git-ignored)
 ├── docs/
-│   ├── api-docs.json             Exported OpenAPI spec (this project's own)
-│   └── openapi (1).yml           Unrelated reference spec, not this project's
+│   └── api-docs.json             Exported OpenAPI spec for this project
 ├── .github/workflows/ci.yml      CI: ktlint + tests/coverage on push & PR
 └── src/
     ├── main/
@@ -180,9 +179,7 @@ Base path: `/api/v1` (set via `server.servlet.context-path`).
 - `GET /actuator/prometheus` — Prometheus-formatted metrics scrape endpoint
 
 Interactive docs are served by springdoc once the app is running (Swagger UI at
-`/api/v1/swagger-ui.html`); a static export of this project's own spec lives in
-`docs/api-docs.json` (`docs/openapi (1).yml` is unrelated reference material, not this project's
-spec).
+`/api/v1/swagger-ui.html`); a static export of this project's spec lives in `docs/api-docs.json`.
 
 Every response carries an `X-Trace-Id` header; on errors, the same value is embedded as
 `traceId` in the `ApiError` body, so a report from a client can be matched to server-side log

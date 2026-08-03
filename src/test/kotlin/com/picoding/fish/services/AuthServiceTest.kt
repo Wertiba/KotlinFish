@@ -40,6 +40,7 @@ class AuthServiceTest {
                 ),
             cors = Settings.Cors(emptyList()),
             admin = Settings.Admin("admin@test.local", "pw", "Admin"),
+            cookie = Settings.Cookie(secure = true),
         )
 
     private lateinit var authService: AuthService

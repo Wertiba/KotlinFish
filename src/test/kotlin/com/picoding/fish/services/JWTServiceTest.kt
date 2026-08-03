@@ -24,6 +24,7 @@ class JWTServiceTest {
             ),
         cors = Settings.Cors(emptyList()),
         admin = Settings.Admin("admin@test.local", "pw", "Admin"),
+        cookie = Settings.Cookie(secure = true),
     )
 
     private lateinit var jwtService: JWTService
@@ -94,6 +95,7 @@ class JWTServiceTest {
                         ),
                     cors = Settings.Cors(emptyList()),
                     admin = Settings.Admin("admin@test.local", "pw", "Admin"),
+                    cookie = Settings.Cookie(secure = true),
                 ),
             )
         val token = otherService.generateAccessToken(UUID.randomUUID().toString())
