@@ -48,10 +48,12 @@ together in a Kotlin project.
 ## Using This as a Template
 
 1. Click **"Use this template"** on GitHub (or `git clone` + re-init `.git` yourself).
-2. Rename the project: update `rootProject.name` in `settings.gradle.kts`, the `group`/`version`
-   in `build.gradle.kts`, and the `com.picoding.fish` package if you want a different namespace
-   (rename the `src/main/kotlin/com/picoding/fish` and `src/test/kotlin/com/picoding/fish`
-   directories, and the package declarations inside).
+2. Rename the project: run `./actions/rename-project.sh com.acme.orders orders` (or
+   `.\actions\rename-project.ps1 -NewPackage com.acme.orders -NewName orders` on Windows). This
+   moves the `com.picoding.fish` package to your namespace and updates everything derived from
+   it — `rootProject.name`, `group` in `build.gradle.kts`, the Dockerfile jar name, the
+   `logs/*.log` path, and the `docker-compose.yml` container/volume names. Review the diff, then
+   delete both scripts under `actions/` once you're happy with the result.
 3. Copy `.env` (see [Configuration](#configuration) below) and fill in real values — it's
    git-ignored, so nothing you put there gets committed.
 4. Replace `src/main/resources/db/migration/V1__init.sql` with your own schema, or add new
