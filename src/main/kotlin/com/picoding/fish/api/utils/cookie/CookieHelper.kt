@@ -9,14 +9,11 @@ import java.time.Duration
 class CookieHelper(
     private val settings: Settings,
 ) {
-    fun getCookie(
-        token: String,
-        secure: Boolean = true,
-    ): ResponseCookie =
+    fun getCookie(token: String): ResponseCookie =
         ResponseCookie
             .from("refreshToken", token)
             .httpOnly(true)
-            .secure(secure)
+            .secure(settings.cookie.secure)
             .path("/")
             .maxAge(Duration.ofDays(settings.security.refreshTokenExpiration.toDays()))
             .sameSite("Lax")
@@ -26,7 +23,9 @@ class CookieHelper(
         ResponseCookie
             .from("refreshToken", "")
             .httpOnly(true)
+            .secure(settings.cookie.secure)
             .path("/")
             .maxAge(0)
+            .sameSite("Lax")
             .build()
 }

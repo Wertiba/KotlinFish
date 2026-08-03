@@ -121,6 +121,7 @@ The app is configured entirely through environment variables (see `application.y
 | `APP_SECURITY_REFRESH_TOKEN_EXPIRATION` | Refresh token TTL (default `30d`) |
 | `APP_ADMIN_EMAIL`, `APP_ADMIN_PASSWORD`, `APP_ADMIN_FULLNAME` | Bootstrap admin account created on startup |
 | `APP_CORS_ALLOWED_ORIGINS` | Comma-separated list of allowed CORS origins |
+| `APP_COOKIE_SECURE` | Whether the refresh-token cookie gets the `Secure` attribute (default `true`). Set to `false` for local/HTTP-only dev — browsers silently drop `Secure` cookies over plain HTTP, which otherwise looks like login "not persisting". |
 | `LOGGING_STRUCTURED_FORMAT_CONSOLE`, `LOGGING_STRUCTURED_FORMAT_FILE` | Optional: `ecs`, `gelf`, or `logstash` to switch that sink to structured JSON (default: human-readable pattern) |
 
 Running tests does **not** require any of these to be set — the `test` profile
