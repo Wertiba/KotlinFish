@@ -15,7 +15,7 @@ data class Settings
         val security: Security,
         val cors: Cors,
         val admin: Admin,
-        val cookie: Cookie,
+        val cookie: Cookie = Cookie(secure = true),
     ) {
         data class Security(
             @field:NotBlank
