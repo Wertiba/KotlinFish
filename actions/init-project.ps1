@@ -2,25 +2,35 @@
 .SYNOPSIS
   One-shot template bootstrap: renames the com.picoding.fish package (and everything
   derived from it - rootProject.name, group, Dockerfile jar name, docker-compose
-  container/volume names, the logs/*.log path) to your own project's identity.
+  container/volume names, the logs/*.log path) to your own project's identity, and
+  optionally creates the PostgreSQL database referenced by DB_URL.
 
 .EXAMPLE
-  .\actions\rename-project.ps1 -NewPackage com.acme.orders
+  .\actions\init-project.ps1 -NewPackage com.acme.orders
 
 .EXAMPLE
-  .\actions\rename-project.ps1 -NewPackage com.acme.orderservice -NewName orders
+  .\actions\init-project.ps1 -NewPackage com.acme.orderservice -NewName orders
+
+.EXAMPLE
+  .\actions\init-project.ps1 -NewPackage com.acme.orders -CreateDb
+
+.EXAMPLE
+  .\actions\init-project.ps1 -CreateDb   # only create the database, skip renaming
 
 .NOTES
-  Run this once, right after cloning the template, before you've made changes you
-  care about - review the diff with `git status`/`git diff` afterwards. Delete this
-  script (and its .sh sibling) once you're happy with the result.
+  Run the rename part once, right after cloning the template, before you've made
+  changes you care about - review the diff with `git status`/`git diff` afterwards.
+  Delete this script (and its .sh sibling) once you're happy with the result.
 #>
 param(
-    [Parameter(Mandatory = $true)]
+    [Parameter(Mandatory = $false)]
     [string]$NewPackage,
 
     [Parameter(Mandatory = $false)]
-    [string]$NewName
+    [string]$NewName,
+
+    [Parameter(Mandatory = $false)]
+    [switch]$CreateDb
 )
 
 $ErrorActionPreference = "Stop"
@@ -28,6 +38,72 @@ $ErrorActionPreference = "Stop"
 $OldPackage = "com.picoding.fish"
 $OldGroup = "com.picoding"
 $OldName = "fish"
+
+if (-not $NewPackage -and -not $CreateDb) {
+    Write-Error "Usage: .\actions\init-project.ps1 [-CreateDb] [-NewPackage <new.package.name>] [-NewName <project-name>]"
+}
+
+$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+Set-Location $RepoRoot
+
+function New-Database {
+    # DB_URL/DB_USER/DB_PASSWORD come from the environment, falling back to .env.
+    $dbUrl = $env:DB_URL
+    $dbUser = $env:DB_USER
+    $dbPassword = $env:DB_PASSWORD
+
+    $envFile = Join-Path $RepoRoot ".env"
+    if (-not $dbUrl -and (Test-Path $envFile)) {
+        foreach ($line in Get-Content $envFile) {
+            if ($line -match '^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$') {
+                $key = $Matches[1]
+                $value = $Matches[2].Trim().Trim('"')
+                switch ($key) {
+                    "DB_URL" { if (-not $dbUrl) { $dbUrl = $value } }
+                    "DB_USER" { if (-not $dbUser) { $dbUser = $value } }
+                    "DB_PASSWORD" { if (-not $dbPassword) { $dbPassword = $value } }
+                }
+            }
+        }
+    }
+
+    if (-not $dbUrl) {
+        Write-Error "DB_URL is not set (checked the environment and .env) - cannot create database."
+    }
+
+    $psql = Get-Command psql -ErrorAction SilentlyContinue
+    if (-not $psql) {
+        Write-Error "psql not found on PATH - install the PostgreSQL client to use -CreateDb."
+    }
+
+    # DB_URL is a JDBC url: jdbc:postgresql://host[:port]/dbname[?params]
+    if ($dbUrl -notmatch '^jdbc:postgresql://([^/:]+)(:(\d+))?/([A-Za-z0-9_]+)') {
+        Write-Error "Could not parse DB_URL '$dbUrl' as jdbc:postgresql://host[:port]/dbname"
+    }
+    $dbHost = $Matches[1]
+    $dbPort = if ($Matches[3]) { $Matches[3] } else { "5432" }
+    $dbName = $Matches[4]
+    if (-not $dbUser) { $dbUser = "postgres" }
+
+    Write-Host "Checking database '$dbName' on ${dbHost}:${dbPort}..."
+    $env:PGPASSWORD = $dbPassword
+
+    $exists = & psql -h $dbHost -p $dbPort -U $dbUser -d postgres -tAc `
+        "SELECT 1 FROM pg_database WHERE datname = '$dbName'"
+
+    if (($exists | Out-String).Trim() -eq "1") {
+        Write-Host "Database '$dbName' already exists - nothing to do."
+    } else {
+        Write-Host "Creating database '$dbName'..."
+        & psql -h $dbHost -p $dbPort -U $dbUser -d postgres -c "CREATE DATABASE `"$dbName`""
+        Write-Host "Database '$dbName' created."
+    }
+}
+
+if (-not $NewPackage) {
+    New-Database
+    return
+}
 
 if (-not $NewName) {
     $NewName = $NewPackage.Substring($NewPackage.LastIndexOf('.') + 1)
@@ -41,9 +117,6 @@ $NewGroup = $NewPackage.Substring(0, $lastDot)
 if ($NewPackage -notmatch '^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*)+$') {
     Write-Error "Package must be lowercase, dot-separated identifiers, e.g. com.acme.orders"
 }
-
-$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-Set-Location $RepoRoot
 
 $OldPath = $OldPackage -replace '\.', '\'
 $NewPath = $NewPackage -replace '\.', '\'
@@ -140,8 +213,14 @@ if (Test-Path "docker-compose.yml") {
 
 Write-Host "Done."
 Write-Host ""
+
+if ($CreateDb) {
+    New-Database
+    Write-Host ""
+}
+
 Write-Host "Next steps:"
 Write-Host "  - skim README.md - the prose (title, description) still talks about the old project"
 Write-Host "  - update .env / .env.example: admin credentials, JWT secret, DB name"
 Write-Host "  - git status / git diff to review everything that changed"
-Write-Host "  - delete actions\rename-project.sh and actions\rename-project.ps1 once you're happy"
+Write-Host "  - delete actions\init-project.sh and actions\init-project.ps1 once you're happy"

@@ -48,17 +48,23 @@ together in a Kotlin project.
 ## Using This as a Template
 
 1. Click **"Use this template"** on GitHub (or `git clone` + re-init `.git` yourself).
-2. Rename the project: run `./actions/rename-project.sh com.acme.orders orders` (or
-   `.\actions\rename-project.ps1 -NewPackage com.acme.orders -NewName orders` on Windows). This
+2. Rename the project: run `./actions/init-project.sh com.acme.orders orders` (or
+   `.\actions\init-project.ps1 -NewPackage com.acme.orders -NewName orders` on Windows). This
    moves the `com.picoding.fish` package to your namespace and updates everything derived from
    it — `rootProject.name`, `group` in `build.gradle.kts`, the Dockerfile jar name, the
    `logs/*.log` path, and the `docker-compose.yml` container/volume names. Review the diff, then
    delete both scripts under `actions/` once you're happy with the result.
 3. Copy `.env` (see [Configuration](#configuration) below) and fill in real values — it's
    git-ignored, so nothing you put there gets committed.
-4. Replace `src/main/resources/db/migration/V1__init.sql` with your own schema, or add new
+4. Create the database: `DB_URL` points at a database that doesn't exist yet (Postgres only
+   ships the default `postgres` database), so the app will fail to start until it's created.
+   Pass `--create-db` (`-CreateDb` on Windows) to the same script — either combined with the
+   rename (`./actions/init-project.sh --create-db com.acme.orders orders`) or on its own
+   (`./actions/init-project.sh --create-db`) — to create it via `psql`, reading `DB_URL`,
+   `DB_USER`, `DB_PASSWORD` from the environment or `.env`.
+5. Replace `src/main/resources/db/migration/V1__init.sql` with your own schema, or add new
    `V2__*.sql`, `V3__*.sql`, ... migrations on top of it.
-5. Swap out the `User`/`Auth` domain for your own entities, or build alongside it — the
+6. Swap out the `User`/`Auth` domain for your own entities, or build alongside it — the
    `database` / `services` / `api` package split is meant to generalize.
 
 ## Repository Map
