@@ -2,8 +2,9 @@
 .SYNOPSIS
   One-shot template bootstrap: renames the com.picoding.fish package (and everything
   derived from it - rootProject.name, group, Dockerfile jar name, docker-compose
-  container/volume names, the logs/*.log path) to your own project's identity, and
-  optionally creates the PostgreSQL database referenced by DB_URL.
+  container/volume names, the logs/*.log path, and the project directory itself) to
+  your own project's identity, and optionally creates the PostgreSQL database
+  referenced by DB_URL.
 
 .EXAMPLE
   .\actions\init-project.ps1 -NewPackage com.acme.orders
@@ -209,6 +210,41 @@ if (Test-Path "docker-compose.yml") {
     Replace-InFile "docker-compose.yml" "container_name: db" "container_name: $NewName-db"
     Replace-InFile "docker-compose.yml" "pgdata:" "${NewName}_pgdata:"
     Replace-InFile "docker-compose.yml" "applogs:" "${NewName}_applogs:"
+}
+
+# Rename the project directory itself to match. Best-effort: this can transiently
+# fail right after heavy file churn (antivirus/indexer briefly holding a file open),
+# or fail outright if a shell/IDE has the directory open as its current directory -
+# so it's retried a few times, and a lasting failure is reported without aborting
+# the script.
+$ParentDir = Split-Path $RepoRoot -Parent
+$CurrentDirName = Split-Path $RepoRoot -Leaf
+if ($CurrentDirName -ne $NewName) {
+    $NewRepoRoot = Join-Path $ParentDir $NewName
+    if (Test-Path $NewRepoRoot) {
+        Write-Host "Warning: '$NewRepoRoot' already exists - leaving the project directory name as-is."
+    } else {
+        Set-Location $ParentDir
+        $moved = $false
+        for ($attempt = 1; $attempt -le 3; $attempt++) {
+            try {
+                Rename-Item -Path $RepoRoot -NewName $NewName -ErrorAction Stop
+                $moved = $true
+                break
+            } catch {
+                Start-Sleep -Seconds 1
+            }
+        }
+        if ($moved) {
+            $RepoRoot = $NewRepoRoot
+            Set-Location $RepoRoot
+            Write-Host "Renamed project directory: $CurrentDirName -> $NewName"
+        } else {
+            Set-Location (Join-Path $ParentDir $CurrentDirName)
+            Write-Host "Warning: couldn't rename the project directory to '$NewName' - it's likely still open in this shell/IDE. Close whatever has it open, then run:"
+            Write-Host "    cd ..; Rename-Item $CurrentDirName $NewName"
+        }
+    }
 }
 
 Write-Host "Done."

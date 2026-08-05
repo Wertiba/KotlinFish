@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # One-shot template bootstrap: renames the com.picoding.fish package (and everything
 # derived from it - rootProject.name, group, Dockerfile jar name, docker-compose
-# container/volume names, the logs/*.log path) to your own project's identity, and
-# optionally creates the PostgreSQL database referenced by DB_URL.
+# container/volume names, the logs/*.log path, and the project directory itself) to
+# your own project's identity, and optionally creates the PostgreSQL database
+# referenced by DB_URL.
 #
 # Usage:
 #   ./actions/init-project.sh [--create-db] [<new.package.name> [project-name]]
@@ -196,6 +197,39 @@ if [[ -f docker-compose.yml ]]; then
         -e "s|applogs:|${NEW_NAME}_applogs:|g" \
         docker-compose.yml
     rm -f docker-compose.yml.bak
+fi
+
+# Rename the project directory itself to match. Best-effort: on Windows this can
+# transiently fail right after heavy file churn (antivirus/indexer briefly holding a
+# file open), or fail outright if a shell/IDE has the directory open as its current
+# directory - so it's retried a few times, and a lasting failure is reported without
+# aborting the script.
+PARENT_DIR="$(dirname "$REPO_ROOT")"
+CURRENT_DIR_NAME="$(basename "$REPO_ROOT")"
+if [[ "$CURRENT_DIR_NAME" != "$NEW_NAME" ]]; then
+    NEW_REPO_ROOT="$PARENT_DIR/$NEW_NAME"
+    if [[ -e "$NEW_REPO_ROOT" ]]; then
+        echo "Warning: '$NEW_REPO_ROOT' already exists - leaving the project directory name as-is." >&2
+    else
+        cd "$PARENT_DIR"
+        MOVED=false
+        for attempt in 1 2 3; do
+            if mv "$CURRENT_DIR_NAME" "$NEW_NAME" 2>/dev/null; then
+                MOVED=true
+                break
+            fi
+            sleep 1
+        done
+        if $MOVED; then
+            REPO_ROOT="$NEW_REPO_ROOT"
+            cd "$REPO_ROOT"
+            echo "Renamed project directory: $CURRENT_DIR_NAME -> $NEW_NAME"
+        else
+            cd "$CURRENT_DIR_NAME"
+            echo "Warning: couldn't rename the project directory to '$NEW_NAME' - it's likely still open in this shell/IDE (common on Windows). Close whatever has it open, then run:" >&2
+            echo "    cd .. && mv \"$CURRENT_DIR_NAME\" \"$NEW_NAME\"" >&2
+        fi
+    fi
 fi
 
 echo "Done."

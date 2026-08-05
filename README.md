@@ -52,8 +52,9 @@ together in a Kotlin project.
    `.\actions\init-project.ps1 -NewPackage com.acme.orders -NewName orders` on Windows). This
    moves the `com.picoding.fish` package to your namespace and updates everything derived from
    it — `rootProject.name`, `group` in `build.gradle.kts`, the Dockerfile jar name, the
-   `logs/*.log` path, and the `docker-compose.yml` container/volume names. Review the diff, then
-   delete both scripts under `actions/` once you're happy with the result.
+   `logs/*.log` path, the `docker-compose.yml` container/volume names, and the project directory
+   itself (e.g. `KotlinFish` → `orders`). Review the diff, then delete both scripts under
+   `actions/` once you're happy with the result.
 3. Copy `.env` (see [Configuration](#configuration) below) and fill in real values — it's
    git-ignored, so nothing you put there gets committed.
 4. Create the database: `DB_URL` points at a database that doesn't exist yet (Postgres only
