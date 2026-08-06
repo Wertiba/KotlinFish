@@ -58,10 +58,15 @@ together in a Kotlin project.
    git-ignored, so nothing you put there gets committed.
 4. Create the database: `DB_URL` points at a database that doesn't exist yet (Postgres only
    ships the default `postgres` database), so the app will fail to start until it's created.
-   Pass `--create-db` (`-CreateDb` on Windows) to the same script — either combined with the
-   rename (`./actions/init-project.sh --create-db com.acme.orders orders`) or on its own
-   (`./actions/init-project.sh --create-db`) — to create it via `psql`, reading `DB_URL`,
-   `DB_USER`, `DB_PASSWORD` from the environment or `.env`.
+   - Running via `docker-compose up`: nothing to do — `docker/initdb/00-create-app-db.sh` runs
+     automatically the first time the `db` container starts on a fresh volume and creates
+     whatever database `DB_URL` names.
+   - Any other setup (local Postgres, an already-initialized volume, a remote database): pass
+     `--create-db` (`-CreateDb` on Windows) to the same script — either combined with the rename
+     (`./actions/init-project.sh --create-db com.acme.orders orders`) or on its own
+     (`./actions/init-project.sh --create-db`). It uses `psql` if available, falling back to a
+     throwaway `postgres:16-alpine` container via Docker otherwise, reading `DB_URL`, `DB_USER`,
+     `DB_PASSWORD` from the environment or `.env`.
 5. Replace `src/main/resources/db/migration/V1__init.sql` with your own schema, or add new
    `V2__*.sql`, `V3__*.sql`, ... migrations on top of it.
 6. Swap out the `User`/`Auth` domain for your own entities, or build alongside it — the
@@ -75,6 +80,7 @@ together in a Kotlin project.
 ├── settings.gradle.kts           Root project name
 ├── Dockerfile                    App image (Amazon Corretto 24, builds the jar in-image)
 ├── docker-compose.yml            App + Postgres for local/full-stack runs
+├── docker/initdb/                Runs once against a fresh db volume; creates DB_URL's database
 ├── .env                          Local secrets/config for docker-compose (git-ignored)
 ├── docs/
 │   └── api-docs.json             Exported OpenAPI spec for this project
