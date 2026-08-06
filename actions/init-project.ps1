@@ -2,9 +2,8 @@
 .SYNOPSIS
   One-shot template bootstrap: renames the com.picoding.fish package (and everything
   derived from it - rootProject.name, group, Dockerfile jar name, docker-compose
-  container/volume names, the logs/*.log path, and the project directory itself) to
-  your own project's identity, and optionally creates the PostgreSQL database
-  referenced by DB_URL.
+  container/volume names, the logs/*.log path) to your own project's identity, and
+  optionally creates the PostgreSQL database referenced by DB_URL.
 
 .EXAMPLE
   .\actions\init-project.ps1 -NewPackage com.acme.orders
@@ -48,7 +47,6 @@ $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 Set-Location $RepoRoot
 
 function New-Database {
-    # DB_URL/DB_USER/DB_PASSWORD come from the environment, falling back to .env.
     $dbUrl = $env:DB_URL
     $dbUser = $env:DB_USER
     $dbPassword = $env:DB_PASSWORD
@@ -72,12 +70,6 @@ function New-Database {
         Write-Error "DB_URL is not set (checked the environment and .env) - cannot create database."
     }
 
-    $psql = Get-Command psql -ErrorAction SilentlyContinue
-    if (-not $psql) {
-        Write-Error "psql not found on PATH - install the PostgreSQL client to use -CreateDb."
-    }
-
-    # DB_URL is a JDBC url: jdbc:postgresql://host[:port]/dbname[?params]
     if ($dbUrl -notmatch '^jdbc:postgresql://([^/:]+)(:(\d+))?/([A-Za-z0-9_]+)') {
         Write-Error "Could not parse DB_URL '$dbUrl' as jdbc:postgresql://host[:port]/dbname"
     }
@@ -86,17 +78,37 @@ function New-Database {
     $dbName = $Matches[4]
     if (-not $dbUser) { $dbUser = "postgres" }
 
+    $psqlExe = "psql"
+    $psqlPrefixArgs = @("-h", $dbHost, "-p", $dbPort, "-U", $dbUser)
+
+    $psql = Get-Command psql -ErrorAction SilentlyContinue
+    if (-not $psql) {
+        $docker = Get-Command docker -ErrorAction SilentlyContinue
+        if (-not $docker) {
+            Write-Error "Neither psql nor docker found on PATH - install the PostgreSQL client (or Docker) to use -CreateDb."
+        }
+        $dockerDbHost = $dbHost
+        $dockerArgs = @("run", "--rm", "-e", "PGPASSWORD")
+        if ($dbHost -eq "localhost" -or $dbHost -eq "127.0.0.1") {
+            $dockerDbHost = "host.docker.internal"
+            $dockerArgs += @("--add-host", "host.docker.internal:host-gateway")
+        }
+        Write-Host "psql not found on PATH - running it via a throwaway postgres:16-alpine container instead."
+        $psqlExe = "docker"
+        $psqlPrefixArgs = $dockerArgs + @("postgres:16-alpine", "psql", "-h", $dockerDbHost, "-p", $dbPort, "-U", $dbUser)
+    }
+
     Write-Host "Checking database '$dbName' on ${dbHost}:${dbPort}..."
     $env:PGPASSWORD = $dbPassword
 
-    $exists = & psql -h $dbHost -p $dbPort -U $dbUser -d postgres -tAc `
+    $exists = & $psqlExe @psqlPrefixArgs -d postgres -tAc `
         "SELECT 1 FROM pg_database WHERE datname = '$dbName'"
 
     if (($exists | Out-String).Trim() -eq "1") {
         Write-Host "Database '$dbName' already exists - nothing to do."
     } else {
         Write-Host "Creating database '$dbName'..."
-        & psql -h $dbHost -p $dbPort -U $dbUser -d postgres -c "CREATE DATABASE `"$dbName`""
+        & $psqlExe @psqlPrefixArgs -d postgres -c "CREATE DATABASE `"$dbName`""
         Write-Host "Database '$dbName' created."
     }
 }
@@ -154,7 +166,6 @@ function Move-Tree($oldDir, $newDir) {
 Move-Tree $MainOld (Join-Path "src\main\kotlin" $NewPath)
 Move-Tree $TestOld (Join-Path "src\test\kotlin" $NewPath)
 
-# Clean up now-empty package directories left behind by the move (e.g. com\picoding).
 foreach ($base in @("src\main\kotlin", "src\test\kotlin")) {
     if (-not (Test-Path $base)) { continue }
     $changed = $true
@@ -180,7 +191,6 @@ function Replace-InFile($path, $pattern, $replacement) {
     }
 }
 
-# Rewrite every source/config file that references the old package.
 $escapedOldPackage = [regex]::Escape($OldPackage)
 $candidates = Get-ChildItem -Path "src" -Recurse -File -Include "*.kt", "*.kts" -ErrorAction SilentlyContinue
 $candidates += Get-Item "build.gradle.kts", "settings.gradle.kts", "Dockerfile", "README.md" -ErrorAction SilentlyContinue
@@ -210,41 +220,6 @@ if (Test-Path "docker-compose.yml") {
     Replace-InFile "docker-compose.yml" "container_name: db" "container_name: $NewName-db"
     Replace-InFile "docker-compose.yml" "pgdata:" "${NewName}_pgdata:"
     Replace-InFile "docker-compose.yml" "applogs:" "${NewName}_applogs:"
-}
-
-# Rename the project directory itself to match. Best-effort: this can transiently
-# fail right after heavy file churn (antivirus/indexer briefly holding a file open),
-# or fail outright if a shell/IDE has the directory open as its current directory -
-# so it's retried a few times, and a lasting failure is reported without aborting
-# the script.
-$ParentDir = Split-Path $RepoRoot -Parent
-$CurrentDirName = Split-Path $RepoRoot -Leaf
-if ($CurrentDirName -ne $NewName) {
-    $NewRepoRoot = Join-Path $ParentDir $NewName
-    if (Test-Path $NewRepoRoot) {
-        Write-Host "Warning: '$NewRepoRoot' already exists - leaving the project directory name as-is."
-    } else {
-        Set-Location $ParentDir
-        $moved = $false
-        for ($attempt = 1; $attempt -le 3; $attempt++) {
-            try {
-                Rename-Item -Path $RepoRoot -NewName $NewName -ErrorAction Stop
-                $moved = $true
-                break
-            } catch {
-                Start-Sleep -Seconds 1
-            }
-        }
-        if ($moved) {
-            $RepoRoot = $NewRepoRoot
-            Set-Location $RepoRoot
-            Write-Host "Renamed project directory: $CurrentDirName -> $NewName"
-        } else {
-            Set-Location (Join-Path $ParentDir $CurrentDirName)
-            Write-Host "Warning: couldn't rename the project directory to '$NewName' - it's likely still open in this shell/IDE. Close whatever has it open, then run:"
-            Write-Host "    cd ..; Rename-Item $CurrentDirName $NewName"
-        }
-    }
 }
 
 Write-Host "Done."
