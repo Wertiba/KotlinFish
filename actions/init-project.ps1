@@ -216,6 +216,7 @@ Replace-InFile "src\main\resources\application.yaml" "logs/$OldName\.log" "logs/
 Replace-InFile "README.md" "logs/$OldName\.log" "logs/$NewName.log"
 
 if (Test-Path "docker-compose.yml") {
+    Replace-InFile "docker-compose.yml" "(?m)^name: kotlinapp" "name: $NewName"
     Replace-InFile "docker-compose.yml" "container_name: kotlinapp" "container_name: $NewName"
     Replace-InFile "docker-compose.yml" "container_name: db" "container_name: $NewName-db"
     Replace-InFile "docker-compose.yml" "pgdata:" "${NewName}_pgdata:"

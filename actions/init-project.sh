@@ -197,6 +197,7 @@ fi
 
 if [[ -f docker-compose.yml ]]; then
     sed -i.bak \
+        -e "s|^name: kotlinapp|name: $NEW_NAME|" \
         -e "s|container_name: kotlinapp|container_name: $NEW_NAME|" \
         -e "s|container_name: db|container_name: $NEW_NAME-db|" \
         -e "s|pgdata:|${NEW_NAME}_pgdata:|g" \
